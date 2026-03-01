@@ -189,6 +189,7 @@ jobs:
             -derivedDataPath "${SPARKLE_DIR}/.derived" \
             build
           BIN_DIR="${SPARKLE_DIR}/.derived/Build/Products/Release"
+          export PATH="${BIN_DIR}:${PATH}"
           echo "${BIN_DIR}" >> "$GITHUB_PATH"
           command -v generate_appcast >/dev/null 2>&1
           command -v sign_update >/dev/null 2>&1
