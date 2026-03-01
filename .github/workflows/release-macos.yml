@@ -265,11 +265,9 @@ jobs:
             echo "Could not load appcast.xml from ${TARGET_REPO}; initialized a new appcast feed."
           fi
 
-          if [[ "${LOADED_TARGET_APPCAST}" == "1" ]] && /usr/bin/grep -q "<sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>" appcast.xml; then
-            echo "Appcast already contains ${VERSION}; skipping regeneration."
-          else
-            ./Scripts/make_appcast.sh "${ZIP}" "${{ steps.meta.outputs.feed_url }}"
-          fi
+          # Always regenerate the appcast entry for this version so enclosure length/signature
+          # reflect the latest uploaded release assets (including clobbered uploads).
+          ./Scripts/make_appcast.sh "${ZIP}" "${{ steps.meta.outputs.feed_url }}"
 
           ./Scripts/verify_appcast.sh "${VERSION}"
 
