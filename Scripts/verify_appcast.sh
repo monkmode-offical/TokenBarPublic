@@ -39,7 +39,7 @@ function cleaned_key_path() {
 KEY_FILE=$(cleaned_key_path)
 trap 'rm -f "$KEY_FILE" "$TMP_ZIP"' EXIT
 
-TMP_ZIP=$(mktemp /tmp/codexbar-enclosure.XXXX.zip)
+TMP_ZIP=$(mktemp /tmp/tokenbar-enclosure.XXXX.zip)
 
 python3 - "$APPCAST" "$VERSION" >"$TMP_ZIP.meta" <<'PY'
 import sys, xml.etree.ElementTree as ET
@@ -73,7 +73,14 @@ print(sig)
 print(length)
 PY
 
-readarray -t META <"$TMP_ZIP.meta"
+META=()
+while IFS= read -r line; do
+  META+=("$line")
+done <"$TMP_ZIP.meta"
+if [[ ${#META[@]} -lt 3 ]]; then
+  echo "Failed to parse enclosure metadata from appcast." >&2
+  exit 1
+fi
 URL="${META[0]}"
 SIG="${META[1]}"
 LEN_EXPECTED="${META[2]}"
