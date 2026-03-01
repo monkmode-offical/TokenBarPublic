@@ -122,24 +122,58 @@ stapler validate "$APP_BUNDLE"
 echo "Packaging dSYM"
 FIRST_ARCH="${ARCH_LIST[0]}"
 PREFERRED_ARCH_DIR=".build/${FIRST_ARCH}-apple-macosx/release"
-DSYM_PATH="${PREFERRED_ARCH_DIR}/${APP_NAME}.dSYM"
-if [[ ! -d "$DSYM_PATH" ]]; then
-  echo "Missing dSYM at $DSYM_PATH" >&2
+resolve_dsym_path() {
+  local arch="$1"
+  local candidate=""
+  local product_names=("${APP_NAME}" "TokenBar" "CodexBar")
+  local product_name=""
+  for product_name in "${product_names[@]}"; do
+    candidate=".build/${arch}-apple-macosx/release/${product_name}.dSYM"
+    if [[ -d "$candidate" ]]; then
+      printf "%s\n" "$candidate"
+      return 0
+    fi
+    candidate=".build/release/${product_name}.dSYM"
+    if [[ -d "$candidate" ]]; then
+      printf "%s\n" "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
+DSYM_PATH="$(resolve_dsym_path "${FIRST_ARCH}" || true)"
+if [[ -z "${DSYM_PATH}" || ! -d "${DSYM_PATH}" ]]; then
+  echo "Missing dSYM for ${FIRST_ARCH} (tried ${APP_NAME}, TokenBar, CodexBar)." >&2
   exit 1
 fi
 if [[ ${#ARCH_LIST[@]} -gt 1 ]]; then
   MERGED_DSYM="${PREFERRED_ARCH_DIR}/${APP_NAME}.dSYM-universal"
   rm -rf "$MERGED_DSYM"
   cp -R "$DSYM_PATH" "$MERGED_DSYM"
-  DWARF_PATH="${MERGED_DSYM}/Contents/Resources/DWARF/${APP_NAME}"
+  DWARF_DIR="${MERGED_DSYM}/Contents/Resources/DWARF"
+  DWARF_NAME="$(/bin/ls "$DWARF_DIR" | /usr/bin/head -n 1 || true)"
+  if [[ -z "${DWARF_NAME}" ]]; then
+    echo "Missing DWARF payload inside ${MERGED_DSYM}" >&2
+    exit 1
+  fi
+  DWARF_PATH="${DWARF_DIR}/${DWARF_NAME}"
   BINARIES=()
   for ARCH in "${ARCH_LIST[@]}"; do
-    ARCH_DSYM=".build/${ARCH}-apple-macosx/release/${APP_NAME}.dSYM/Contents/Resources/DWARF/${APP_NAME}"
-    if [[ ! -f "$ARCH_DSYM" ]]; then
-      echo "Missing dSYM for ${ARCH} at $ARCH_DSYM" >&2
+    ARCH_DSYM_PATH="$(resolve_dsym_path "${ARCH}" || true)"
+    if [[ -z "${ARCH_DSYM_PATH}" || ! -d "${ARCH_DSYM_PATH}" ]]; then
+      echo "Missing dSYM for ${ARCH} (tried ${APP_NAME}, TokenBar, CodexBar)." >&2
       exit 1
     fi
-    BINARIES+=("$ARCH_DSYM")
+    ARCH_DWARF_PATH="${ARCH_DSYM_PATH}/Contents/Resources/DWARF/${DWARF_NAME}"
+    if [[ ! -f "${ARCH_DWARF_PATH}" ]]; then
+      ARCH_DWARF_PATH="$(/usr/bin/find "${ARCH_DSYM_PATH}/Contents/Resources/DWARF" -type f -maxdepth 1 | /usr/bin/head -n 1 || true)"
+    fi
+    if [[ -z "${ARCH_DWARF_PATH}" || ! -f "${ARCH_DWARF_PATH}" ]]; then
+      echo "Missing DWARF file in ${ARCH_DSYM_PATH}" >&2
+      exit 1
+    fi
+    BINARIES+=("${ARCH_DWARF_PATH}")
   done
   lipo -create "${BINARIES[@]}" -output "$DWARF_PATH"
   DSYM_PATH="$MERGED_DSYM"

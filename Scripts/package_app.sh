@@ -240,6 +240,21 @@ resolve_binary_path() {
   fi
 }
 
+resolve_existing_product_name() {
+  local arch="$1"
+  shift
+  local name=""
+  for name in "$@"; do
+    local resolved=""
+    resolved=$(resolve_binary_path "$name" "$arch")
+    if [[ -n "$resolved" && -f "$resolved" ]]; then
+      printf "%s\n" "$name"
+      return 0
+    fi
+  done
+  return 1
+}
+
 verify_binary_arches() {
   local binary="$1"; shift
   local expected=("$@")
@@ -282,16 +297,28 @@ install_binary() {
   verify_binary_arches "$dest" "${ARCH_LIST[@]}"
 }
 
-install_binary "TokenBar" "$APP/Contents/MacOS/TokenBar"
+APP_PRODUCT_NAME="$(resolve_existing_product_name "${ARCH_LIST[0]}" TokenBar CodexBar || true)"
+if [[ -z "${APP_PRODUCT_NAME}" ]]; then
+  echo "ERROR: Could not locate built app executable (expected TokenBar or CodexBar)." >&2
+  exit 1
+fi
+install_binary "${APP_PRODUCT_NAME}" "$APP/Contents/MacOS/TokenBar"
 # Ship TokenBarCLI alongside the app for easy symlinking.
-if [[ -n "$(resolve_binary_path "TokenBarCLI" "${ARCH_LIST[0]}")" ]]; then
-  install_binary "TokenBarCLI" "$APP/Contents/Helpers/TokenBarCLI"
+CLI_PRODUCT_NAME="$(resolve_existing_product_name "${ARCH_LIST[0]}" TokenBarCLI CodexBarCLI || true)"
+if [[ -n "${CLI_PRODUCT_NAME}" ]]; then
+  install_binary "${CLI_PRODUCT_NAME}" "$APP/Contents/Helpers/TokenBarCLI"
 fi
 # Watchdog helper: ensures `claude` probes die when TokenBar crashes/gets killed.
-if [[ -n "$(resolve_binary_path "TokenBarClaudeWatchdog" "${ARCH_LIST[0]}")" ]]; then
-  install_binary "TokenBarClaudeWatchdog" "$APP/Contents/Helpers/TokenBarClaudeWatchdog"
+WATCHDOG_PRODUCT_NAME="$(resolve_existing_product_name "${ARCH_LIST[0]}" TokenBarClaudeWatchdog CodexBarClaudeWatchdog || true)"
+if [[ -n "${WATCHDOG_PRODUCT_NAME}" ]]; then
+  install_binary "${WATCHDOG_PRODUCT_NAME}" "$APP/Contents/Helpers/TokenBarClaudeWatchdog"
 fi
-if [[ -n "$(resolve_binary_path "TokenBarWidget" "${ARCH_LIST[0]}")" ]]; then
+WIDGET_PRODUCT_NAME="$(resolve_existing_product_name "${ARCH_LIST[0]}" TokenBarWidget CodexBarWidget || true)"
+if [[ -n "${WIDGET_PRODUCT_NAME}" ]]; then
+  WIDGET_PRINCIPAL_CLASS="TokenBarWidget.TokenBarWidgetBundle"
+  if [[ "${WIDGET_PRODUCT_NAME}" == "CodexBarWidget" ]]; then
+    WIDGET_PRINCIPAL_CLASS="CodexBarWidget.CodexBarWidgetBundle"
+  fi
   WIDGET_APP="$APP/Contents/PlugIns/TokenBarWidget.appex"
   mkdir -p "$WIDGET_APP/Contents/MacOS" "$WIDGET_APP/Contents/Resources"
   cat > "$WIDGET_APP/Contents/Info.plist" <<PLIST
@@ -310,12 +337,12 @@ if [[ -n "$(resolve_binary_path "TokenBarWidget" "${ARCH_LIST[0]}")" ]]; then
     <key>NSExtension</key>
     <dict>
         <key>NSExtensionPointIdentifier</key><string>com.apple.widgetkit-extension</string>
-        <key>NSExtensionPrincipalClass</key><string>TokenBarWidget.TokenBarWidgetBundle</string>
+        <key>NSExtensionPrincipalClass</key><string>${WIDGET_PRINCIPAL_CLASS}</string>
     </dict>
 </dict>
 </plist>
 PLIST
-  install_binary "TokenBarWidget" "$WIDGET_APP/Contents/MacOS/TokenBarWidget"
+  install_binary "${WIDGET_PRODUCT_NAME}" "$WIDGET_APP/Contents/MacOS/TokenBarWidget"
 fi
 # Embed Sparkle.framework
 if [[ -d ".build/$CONF/Sparkle.framework" ]]; then
@@ -358,6 +385,9 @@ fi
 
 # Bundle app resources (provider icons, etc.).
 APP_RESOURCES_DIR="$ROOT/Sources/TokenBar/Resources"
+if [[ ! -d "$APP_RESOURCES_DIR" ]]; then
+  APP_RESOURCES_DIR="$ROOT/Sources/CodexBar/Resources"
+fi
 if [[ -d "$APP_RESOURCES_DIR" ]]; then
   cp -R "$APP_RESOURCES_DIR/." "$APP/Contents/Resources/"
 fi
@@ -367,8 +397,8 @@ if [[ ! -f "$APP/Contents/Resources/Icon-classic.icns" ]]; then
 fi
 
 # SwiftPM resource bundles (e.g. KeyboardShortcuts) are emitted next to the built binary.
-TOKENBAR_BINARY="$(resolve_binary_path "TokenBar" "${ARCH_LIST[0]}")"
-PREFERRED_BUILD_DIR="$(dirname "${TOKENBAR_BINARY:-$(build_product_path "TokenBar" "${ARCH_LIST[0]}")}")"
+TOKENBAR_BINARY="$(resolve_binary_path "${APP_PRODUCT_NAME}" "${ARCH_LIST[0]}")"
+PREFERRED_BUILD_DIR="$(dirname "${TOKENBAR_BINARY:-$(build_product_path "${APP_PRODUCT_NAME}" "${ARCH_LIST[0]}")}")"
 shopt -s nullglob
 SWIFTPM_BUNDLES=("${PREFERRED_BUILD_DIR}/"*.bundle)
 shopt -u nullglob
