@@ -9,7 +9,6 @@ on:
       tag:
         description: "Existing tag to release (example: v0.18.0)"
         required: false
-        type: string
 
 permissions:
   contents: write
@@ -259,7 +258,15 @@ PY
             LOADED_TARGET_APPCAST=1
             echo "Loaded appcast.xml from ${TARGET_REPO}."
           else
-            echo "Could not load appcast.xml from ${TARGET_REPO}; using checkout copy."
+            cat > appcast.xml <<'XML'
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+  <channel>
+    <title>TokenBar</title>
+  </channel>
+</rss>
+XML
+            echo "Could not load appcast.xml from ${TARGET_REPO}; initialized a new appcast feed."
           fi
 
           if [[ "${LOADED_TARGET_APPCAST}" == "1" ]] && /usr/bin/grep -q "<sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>" appcast.xml; then
