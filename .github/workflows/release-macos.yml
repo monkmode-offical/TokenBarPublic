@@ -242,6 +242,7 @@ jobs:
           set -euo pipefail
           VERSION="${{ steps.meta.outputs.version }}"
           ZIP="TokenBar-${VERSION}.zip"
+          export SPARKLE_RELEASE_VERSION="${VERSION}"
 
           if [[ -n "${UPDATES_REPO_TOKEN}" ]]; then
             export GH_TOKEN="${UPDATES_REPO_TOKEN}"
