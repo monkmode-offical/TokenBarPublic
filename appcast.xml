@@ -9,7 +9,7 @@
             <sparkle:version>51</sparkle:version>
             <sparkle:shortVersionString>0.18.0-beta.3</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <description><![CDATA[<h2>TokenBar 0.18.0-beta.3</h2>
+            <description><![CDATA[<h2>CodexBar 0.18.0-beta.3</h2>
 <h3>Highlights</h3>
 <ul>
 <li>Claude OAuth/keychain flows were reworked across a series of follow-up PRs to reduce prompt storms, stabilize background behavior, surface a setting to control prompt policy and make failure modes deterministic (#245, #305, #308, #309, #364). Thanks @manikv12!</li>
@@ -21,7 +21,7 @@
 </ul>
 <h3>Claude OAuth & Keychain</h3>
 <ul>
-<li>Claude OAuth creds are cached in TokenBar Keychain to reduce repeated prompts.</li>
+<li>Claude OAuth creds are cached in CodexBar Keychain to reduce repeated prompts.</li>
 <li>Prompts can still appear when Claude OAuth credentials are expired, invalid, or missing and re-auth is required.</li>
 <li>In Auto mode, background refresh keeps prompts suppressed; interactive prompts are limited to user actions (menu open or manual refresh).</li>
 <li>OAuth-only mode remains strict (no silent Web/CLI fallback); Auto mode may do one delegated CLI refresh + one OAuth retry before falling back.</li>
@@ -60,9 +60,9 @@
 <li>Update docs for Claude data fetch behavior and keychain troubleshooting notes.</li>
 <li>Update MIT license year.</li>
 </ul>
-<p><a href="https://github.com/tokenbar/tokenbar/blob/main/CHANGELOG.md">View full changelog</a></p>
+<p><a href="https://github.com/steipete/CodexBar/blob/main/CHANGELOG.md">View full changelog</a></p>
 ]]></description>
-            <enclosure url="https://github.com/monkmode-offical/TokenBarPublic/releases/download/v0.18.0-beta.3/TokenBar-0.18.0-beta.3.zip" length="24562078" type="application/octet-stream" sparkle:edSignature="Bsoa7lVyIKwrVIBO7BbySvMfXgA4+gkYpH+7iAMsMjq9Pf6lpWASZHoH3NAf67bZqThw4vEaLBSisSM6MWp8BA=="/>
+            <enclosure url="https://github.com/monkmode-offical/TokenBarPublic/releases/download/v0.18.0-beta.3/TokenBar-0.18.0-beta.3.zip" length="24561923" type="application/octet-stream" sparkle:edSignature="lOO/GvGquBtP3UQHPuk4i+pJV/zGalwNvUTO0XPDx0h//xYEvC4TnlOMdRtwooCnx155DAEtXKuXcYm5TUv1CQ=="/>
         </item>
     </channel>
 </rss>
