@@ -11,6 +11,7 @@ SIGNING_MODE="${TOKENBAR_SIGNING:-identity}"
 ALLOW_ADHOC_DMG="${TOKENBAR_ALLOW_ADHOC_DMG:-0}"
 SKIP_PACKAGE="${TOKENBAR_SKIP_PACKAGE:-0}"
 DEFAULT_RELEASE_IDENTITY="Developer ID Application: TokenBar Team (Y5PE65HELJ)"
+CODESIGN_KEYCHAIN="${TOKENBAR_CODESIGN_KEYCHAIN:-${APP_CODESIGN_KEYCHAIN:-}}"
 
 has_signing_identity() {
   local identity="${1:-}"
@@ -92,7 +93,11 @@ hdiutil create \
   "$DMG_PATH"
 
 if [[ "$SIGNING_MODE" != "adhoc" ]]; then
-  codesign --force --timestamp --sign "$APP_IDENTITY" "$DMG_PATH"
+  CODESIGN_ARGS=(--force --timestamp --sign "$APP_IDENTITY")
+  if [[ -n "$CODESIGN_KEYCHAIN" ]]; then
+    CODESIGN_ARGS+=(--keychain "$CODESIGN_KEYCHAIN")
+  fi
+  codesign "${CODESIGN_ARGS[@]}" "$DMG_PATH"
   spctl -a -t open --context context:primary-signature -vv "$DMG_PATH"
 fi
 

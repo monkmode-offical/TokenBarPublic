@@ -164,6 +164,7 @@ jobs:
           fi
 
           echo "APP_IDENTITY=${APP_IDENTITY}" >> "$GITHUB_ENV"
+          echo "TOKENBAR_CODESIGN_KEYCHAIN=${KEYCHAIN_PATH}" >> "$GITHUB_ENV"
 
       - name: Install Sparkle tools
         shell: bash
