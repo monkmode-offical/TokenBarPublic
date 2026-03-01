@@ -247,25 +247,18 @@ jobs:
 
           LOADED_TARGET_APPCAST=0
           if gh api "repos/${TARGET_REPO}/contents/appcast.xml" --jq .content > "${RUNNER_TEMP}/appcast.b64" 2>/dev/null; then
-            /usr/bin/python3 - "${RUNNER_TEMP}/appcast.b64" appcast.xml <<'PY'
-import base64
-import pathlib
-import sys
-
-src = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8").replace("\n", "")
-pathlib.Path(sys.argv[2]).write_bytes(base64.b64decode(src))
-PY
+            /usr/bin/python3 -c 'import base64, pathlib, sys; pathlib.Path(sys.argv[2]).write_bytes(base64.b64decode(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8").replace("\n", "")))' \
+              "${RUNNER_TEMP}/appcast.b64" appcast.xml
             LOADED_TARGET_APPCAST=1
             echo "Loaded appcast.xml from ${TARGET_REPO}."
           else
-            cat > appcast.xml <<'XML'
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
-  <channel>
-    <title>TokenBar</title>
-  </channel>
-</rss>
-XML
+            /usr/bin/printf '%s\n' \
+              '<?xml version="1.0" encoding="utf-8" standalone="yes"?>' \
+              '<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">' \
+              '  <channel>' \
+              '    <title>TokenBar</title>' \
+              '  </channel>' \
+              '</rss>' > appcast.xml
             echo "Could not load appcast.xml from ${TARGET_REPO}; initialized a new appcast feed."
           fi
 
