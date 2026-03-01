@@ -3,6 +3,19 @@
     <channel>
         <title>TokenBar</title>
         <item>
+            <title>0.18.2</title>
+            <pubDate>Sun, 01 Mar 2026 19:27:41 +0000</pubDate>
+            <link>https://raw.githubusercontent.com/monkmode-offical/TokenBarPublic/main/appcast.xml</link>
+            <sparkle:version>53</sparkle:version>
+            <sparkle:shortVersionString>0.18.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h2>TokenBar 0.18.2</h2>
+<p>Latest TokenBar update.</p>
+<p><a href="https://github.com/tokenbar/tokenbar/blob/main/CHANGELOG.md">View full changelog</a></p>
+]]></description>
+            <enclosure url="https://github.com/monkmode-offical/TokenBarPublic/releases/download/v0.18.2/TokenBar-0.18.2.zip" length="22307877" type="application/octet-stream" sparkle:edSignature="IcKoUpl9pdO2F/JmzcVTMoNfncAUpD5Il97KOqsN6t5MYTFiyE2od7vAZZHPAgoY1li2Bbt7jIWpny3ozJLpAg=="/>
+        </item>
+        <item>
             <title>0.18.1</title>
             <pubDate>Sun, 01 Mar 2026 18:11:05 +0000</pubDate>
             <link>https://raw.githubusercontent.com/monkmode-offical/TokenBarPublic/main/appcast.xml</link>
