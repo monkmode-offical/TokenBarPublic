@@ -6,7 +6,7 @@ read_when:
   - Troubleshooting Keychain prompts in dev
 ---
 
-# CodexBar Development Guide
+# TokenBar Development Guide
 
 ## Quick Start
 
@@ -25,11 +25,11 @@ read_when:
 
 ### Development Workflow
 
-1. **Make code changes** in `Sources/CodexBar/`
+1. **Make code changes** in `Sources/TokenBar/`
 2. **Run** `./Scripts/compile_and_run.sh` to rebuild and launch
-3. **Check logs** in Console.app (filter by "codexbar")
+3. **Check logs** in Console.app (filter by "tokenbar")
 4. **Optional file log**: enable Debug → Logging → "Enable file logging" to write
-   `~/Library/Logs/CodexBar/CodexBar.log` (verbosity defaults to "Verbose")
+   `~/Library/Logs/TokenBar/TokenBar.log` (verbosity defaults to "Verbose")
 
 ## Keychain Prompts (Development)
 
@@ -47,15 +47,15 @@ You'll see **one keychain prompt per stored credential** on the first launch. Th
 
 ### Reset Migration (Testing)
 ```bash
-defaults delete com.steipete.codexbar KeychainMigrationV1Completed
+defaults delete com.tokenbar KeychainMigrationV1Completed
 ```
 
 ## Auto-Refresh for Augment Cookies
 
 ### How It Works
-CodexBar automatically refreshes Augment cookies from your browser:
+TokenBar automatically refreshes Augment cookies from your browser:
 
-1. **Automatic Import**: On every usage refresh, CodexBar imports fresh cookies from your browser
+1. **Automatic Import**: On every usage refresh, TokenBar imports fresh cookies from your browser
 2. **Browser Priority**: Chrome → Arc → Safari → Firefox → Brave (configurable)
 3. **Session Detection**: Looks for Auth0/NextAuth session cookies
 4. **Fallback**: If import fails, uses last known good cookies from keychain
@@ -82,9 +82,9 @@ If automatic import fails:
 ## Project Structure
 
 ```
-CodexBar/
-├── Sources/CodexBar/          # Main app (SwiftUI + AppKit)
-│   ├── CodexBarApp.swift      # App entry point
+TokenBar/
+├── Sources/TokenBar/          # Main app (SwiftUI + AppKit)
+│   ├── TokenBarApp.swift      # App entry point
 │   ├── StatusItemController.swift  # Menu bar icon
 │   ├── UsageStore.swift       # Usage data management
 │   ├── SettingsStore.swift    # User preferences
@@ -94,15 +94,15 @@ CodexBar/
 │   │   ├── Codex/             # OpenAI Codex
 │   │   └── ...
 │   └── KeychainMigration.swift  # One-time keychain migration
-├── Sources/CodexBarCore/      # Shared business logic
-├── Tests/CodexBarTests/       # XCTest suite
+├── Sources/TokenBarCore/      # Shared business logic
+├── Tests/TokenBarTests/       # XCTest suite
 └── Scripts/                   # Build and packaging scripts
 ```
 
 ## Common Tasks
 
 ### Add a New Provider
-1. Create `Sources/CodexBar/Providers/YourProvider/`
+1. Create `Sources/TokenBar/Providers/YourProvider/`
 2. Implement `ProviderImplementation` protocol
 3. Add to `ProviderRegistry.swift`
 4. Add icon to `Resources/ProviderIcon-yourprovider.svg`
@@ -110,11 +110,11 @@ CodexBar/
 ### Debug Cookie Issues
 ```bash
 # Enable verbose logging
-export CODEXBAR_LOG_LEVEL=debug
+export TOKENBAR_LOG_LEVEL=debug
 ./Scripts/compile_and_run.sh
 
 # Check logs in Console.app
-# Filter: subsystem:com.steipete.codexbar category:augment-cookie
+# Filter: subsystem:com.tokenbar category:augment-cookie
 ```
 
 ### Run Tests Only
@@ -133,13 +133,14 @@ swiftlint --strict
 ### Local Development Build
 ```bash
 ./Scripts/package_app.sh
-# Creates: CodexBar.app (ad-hoc signed)
+# Creates: TokenBar.app (ad-hoc signed)
 ```
+Do not distribute ad-hoc builds to end users. Use `./Scripts/sign-and-notarize.sh` (or identity-signed `./Scripts/build_dmg.sh`) for user-facing artifacts to avoid repeated trust/keychain prompts.
 
 ### Release Build (Notarized)
 ```bash
 ./Scripts/sign-and-notarize.sh
-# Creates: CodexBar-arm64.zip (notarized for distribution)
+# Creates: TokenBar-arm64.zip (notarized for distribution)
 ```
 
 See `docs/RELEASING.md` for full release process.
@@ -149,16 +150,16 @@ See `docs/RELEASING.md` for full release process.
 ### App Won't Launch
 ```bash
 # Check crash logs
-ls -lt ~/Library/Logs/DiagnosticReports/CodexBar* | head -5
+ls -lt ~/Library/Logs/DiagnosticReports/TokenBar* | head -5
 
 # Check Console.app for errors
-# Filter: process:CodexBar
+# Filter: process:TokenBar
 ```
 
 ### Keychain Prompts Keep Appearing
 ```bash
 # Verify migration completed
-defaults read com.steipete.codexbar KeychainMigrationV1Completed
+defaults read com.tokenbar KeychainMigrationV1Completed
 # Should output: 1
 
 # Check migration logs

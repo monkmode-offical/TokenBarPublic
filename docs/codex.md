@@ -44,7 +44,7 @@ Usage source picker:
   3) Firefox: `~/Library/Application Support/Firefox/Profiles/*/cookies.sqlite`
   - Domains loaded: `chatgpt.com`, `openai.com`.
   - No cookie-name filter; we import all matching domain cookies.
-- Cached cookies: Keychain cache `com.steipete.codexbar.cache` (account `cookie.codex`, source + timestamp).
+- Cached cookies: Keychain cache `com.tokenbar.cache` (account `cookie.codex`, source + timestamp).
   Reused before re-importing from browsers.
 - Manual cookie header:
   - Paste the `Cookie:` header from a `chatgpt.com` request in Preferences → Providers → Codex.
@@ -104,12 +104,12 @@ Usage source picker:
   - Parses `event_msg` token_count entries and `turn_context` model markers.
   - Computes input/cached/output token deltas and per-model cost.
 - Cache:
-  - `~/Library/Caches/CodexBar/cost-usage/codex-v1.json`
+  - `~/Library/Caches/TokenBar/cost-usage/codex-v1.json`
 - Window: last 30 days (rolling), with a 60s minimum refresh interval.
 
 ## Key files
-- Web: `Sources/CodexBarCore/OpenAIWeb/*`
-- CLI RPC + PTY: `Sources/CodexBarCore/UsageFetcher.swift`,
-  `Sources/CodexBarCore/Providers/Codex/CodexStatusProbe.swift`
-- Cost usage: `Sources/CodexBarCore/CostUsageFetcher.swift`,
-  `Sources/CodexBarCore/Vendored/CostUsage/*`
+- Web: `Sources/TokenBarCore/OpenAIWeb/*`
+- CLI RPC + PTY: `Sources/TokenBarCore/UsageFetcher.swift`,
+  `Sources/TokenBarCore/Providers/Codex/CodexStatusProbe.swift`
+- Cost usage: `Sources/TokenBarCore/CostUsageFetcher.swift`,
+  `Sources/TokenBarCore/Vendored/CostUsage/*`

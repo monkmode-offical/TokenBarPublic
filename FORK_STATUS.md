@@ -1,4 +1,4 @@
-# CodexBar Fork - Current Status
+# TokenBar Fork - Current Status
 
 **Last Updated:** January 4, 2026
 **Fork Maintainer:** Brandon Charleson
@@ -61,7 +61,7 @@
 - ✅ **Quotio analysis framework ready**
 
 ### Critical Discovery
-- ⚠️ **Upstream (steipete) has REMOVED Augment provider**
+- ⚠️ **Upstream (tokenbar) has REMOVED Augment provider**
   - 627 lines deleted from `AugmentStatusProbe.swift`
   - 88 lines deleted from `AugmentStatusProbeTests.swift`
   - **This validates our fork strategy!**
@@ -73,8 +73,8 @@
 - ⚠️ Debug print statements in AugmentStatusProbe.swift (needs proper logging)
 
 ### Uncommitted Changes
-- `Sources/CodexBarCore/Providers/Augment/AugmentStatusProbe.swift` has debug print statements
-  - These should be replaced with proper `CodexBarLog` logging in Phase 2
+- `Sources/TokenBarCore/Providers/Augment/AugmentStatusProbe.swift` has debug print statements
+  - These should be replaced with proper `TokenBarLog` logging in Phase 2
   - Currently unstaged to keep commits clean
 
 ---
@@ -108,7 +108,7 @@
 
 ### Immediate (Phase 2)
 1. **Replace debug prints with proper logging**
-   - Use `CodexBarLog.logger("augment")` pattern
+   - Use `TokenBarLog.logger("augment")` pattern
    - Add structured metadata
    - Follow Claude/Cursor provider patterns
 
@@ -137,9 +137,9 @@
 ## 📁 Key Files Modified
 
 ### Source Code
-- `Sources/CodexBar/About.swift` - Dual attribution
-- `Sources/CodexBar/PreferencesAboutPane.swift` - Organized sections
-- `Sources/CodexBarCore/Providers/Augment/AugmentStatusProbe.swift` - Debug prints (unstaged)
+- `Sources/TokenBar/About.swift` - Dual attribution
+- `Sources/TokenBar/PreferencesAboutPane.swift` - Organized sections
+- `Sources/TokenBarCore/Providers/Augment/AugmentStatusProbe.swift` - Debug prints (unstaged)
 
 ### Documentation
 - `README.md` - Fork notice and enhancements
@@ -163,11 +163,11 @@ feature/augment-integration
 - df75ae2: Multi-upstream management system
 
 # Uncommitted changes
-M Sources/CodexBarCore/Providers/Augment/AugmentStatusProbe.swift (debug prints)
+M Sources/TokenBarCore/Providers/Augment/AugmentStatusProbe.swift (debug prints)
 
 # Git remotes configured
-origin    git@github.com:topoffunnel/CodexBar.git
-upstream  https://github.com/steipete/CodexBar.git (needs to be added)
+origin    git@github.com:topoffunnel/TokenBar.git
+upstream  https://github.com/tokenbar/tokenbar.git (needs to be added)
 quotio    https://github.com/nguyenphutrong/quotio.git (needs to be added)
 ```
 
@@ -179,7 +179,7 @@ quotio    https://github.com/nguyenphutrong/quotio.git (needs to be added)
 
 ```bash
 # 1. Configure git remotes
-git remote add upstream https://github.com/steipete/CodexBar.git
+git remote add upstream https://github.com/tokenbar/tokenbar.git
 git remote add quotio https://github.com/nguyenphutrong/quotio.git
 git fetch --all
 
@@ -199,7 +199,7 @@ git fetch --all
 ### Option 1: Sync Upstream First, Then Phase 2
 ```bash
 # Discard debug prints (will redo in Phase 2)
-git checkout Sources/CodexBarCore/Providers/Augment/AugmentStatusProbe.swift
+git checkout Sources/TokenBarCore/Providers/Augment/AugmentStatusProbe.swift
 
 # Sync valuable upstream changes
 git checkout -b upstream-sync/vertex-improvements
@@ -217,10 +217,10 @@ git checkout -b feature/augment-diagnostics
 ### Option 2: Phase 2 First, Sync Later
 ```bash
 # Keep debug prints and enhance them
-git add Sources/CodexBarCore/Providers/Augment/AugmentStatusProbe.swift
+git add Sources/TokenBarCore/Providers/Augment/AugmentStatusProbe.swift
 
 # Continue on current branch
-# Replace print() with CodexBarLog.logger("augment")
+# Replace print() with TokenBarLog.logger("augment")
 # Complete Phase 2
 # Then sync upstream
 ```
@@ -228,14 +228,14 @@ git add Sources/CodexBarCore/Providers/Augment/AugmentStatusProbe.swift
 ### Option 3: Merge Current Work, Setup System
 ```bash
 # Discard debug prints
-git checkout Sources/CodexBarCore/Providers/Augment/AugmentStatusProbe.swift
+git checkout Sources/TokenBarCore/Providers/Augment/AugmentStatusProbe.swift
 
 # Merge to main
 git checkout main
 git merge feature/augment-integration
 
 # Setup remotes
-git remote add upstream https://github.com/steipete/CodexBar.git
+git remote add upstream https://github.com/tokenbar/tokenbar.git
 git remote add quotio https://github.com/nguyenphutrong/quotio.git
 
 # Start using the system
@@ -254,7 +254,7 @@ git remote add quotio https://github.com/nguyenphutrong/quotio.git
 - [x] Quick start guide
 
 ### Phase 2: Enhanced Diagnostics 🔄 READY TO START
-- [ ] Replace print() with CodexBarLog
+- [ ] Replace print() with TokenBarLog
 - [ ] Enhanced cookie diagnostics
 - [ ] Session keepalive monitoring
 - [ ] Debug pane improvements
@@ -319,8 +319,8 @@ git remote add quotio https://github.com/nguyenphutrong/quotio.git
 - **Roadmap:** `docs/FORK_ROADMAP.md`
 - **Quick Start:** `docs/FORK_QUICK_START.md`
 - **Augment Docs:** `docs/augment.md`
-- **Original Repo:** https://github.com/steipete/CodexBar
-- **Fork Repo:** https://github.com/topoffunnel/CodexBar
+- **Original Repo:** https://github.com/tokenbar/tokenbar
+- **Fork Repo:** https://github.com/topoffunnel/TokenBar
 
 ---
 
@@ -328,7 +328,7 @@ git remote add quotio https://github.com/nguyenphutrong/quotio.git
 
 1. **Merge Phase 1 to main** - Establish fork identity as baseline
 2. **Create Phase 2 branch** - `feature/augment-diagnostics`
-3. **Start with logging** - Replace prints with proper CodexBarLog
+3. **Start with logging** - Replace prints with proper TokenBarLog
 4. **Test thoroughly** - Ensure no regressions
 5. **Document as you go** - Update docs with findings
 

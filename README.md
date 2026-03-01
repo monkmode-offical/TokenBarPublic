@@ -1,8 +1,8 @@
-# CodexBar 🎚️ - May your tokens never run out.
+# TokenBar 🎚️ - May your tokens never run out.
 
 Tiny macOS 14+ menu bar app that keeps your Codex, Claude, Cursor, Gemini, Antigravity, Droid (Factory), Copilot, z.ai, Kiro, Vertex AI, Augment, Amp, JetBrains AI, and OpenRouter limits visible (session + weekly where available) and shows when each window resets. One status item per provider (or Merge Icons mode with a provider switcher and optional Overview tab); enable what you use from Settings. No Dock icon, minimal UI, dynamic bar icons in the menu bar.
 
-<img src="codexbar.png" alt="CodexBar menu screenshot" width="520" />
+<img src="tokenbar.png" alt="TokenBar menu screenshot" width="520" />
 
 ## Install
 
@@ -10,19 +10,19 @@ Tiny macOS 14+ menu bar app that keeps your Codex, Claude, Cursor, Gemini, Antig
 - macOS 14+ (Sonoma)
 
 ### GitHub Releases
-Download: <https://github.com/steipete/CodexBar/releases>
+Download: <https://github.com/tokenbar/tokenbar/releases>
 
 ### Homebrew
 ```bash
-brew install --cask steipete/tap/codexbar
+brew install --cask tokenbar/tap/tokenbar
 ```
 
 ### Linux (CLI only)
 ```bash
-brew install steipete/tap/codexbar
+brew install tokenbar/tap/tokenbar
 ```
-Or download `CodexBarCLI-v<tag>-linux-<arch>.tar.gz` from GitHub Releases.
-Linux support via Omarchy: community Waybar module and TUI, driven by the `codexbar` executable.
+Or download `TokenBarCLI-v<tag>-linux-<arch>.tar.gz` from GitHub Releases.
+Linux support via Omarchy: community Waybar module and TUI, driven by the `tokenbar` executable.
 
 ### First run
 - Open Settings → Providers and enable what you use.
@@ -58,17 +58,22 @@ The menu bar icon is a tiny two-bar meter:
 ## Features
 - Multi-provider menu bar with per-provider toggles (Settings → Providers).
 - Session + weekly meters with reset countdowns.
+- Burn-rate prediction ("at current pace, cap in X days") with safe/risky/danger signaling.
+- Budget mode (target N days) with live over/under guidance.
+- Threshold alerts (custom percentages) with notification + menu state + Dock badge.
+- Local timeline chart (8-week, week-by-week) with reset-cycle comparison.
+- Optional session-tracking mode for daily and weekly active AI time (local only).
 - Optional Codex web dashboard enrichments (code review remaining, usage breakdown, credits history).
 - Local cost-usage scan for Codex + Claude (last 30 days).
 - Provider status polling with incident badges in the menu and icon overlay.
 - Merge Icons mode to combine providers into one status item + switcher, with an optional Overview tab for up to three providers.
 - Refresh cadence presets (manual, 1m, 2m, 5m, 15m).
-- Bundled CLI (`codexbar`) for scripts and CI (including `codexbar cost --provider codex|claude` for local cost usage); Linux CLI builds available.
+- Bundled CLI (`tokenbar`) for scripts and CI (including `tokenbar cost --provider codex|claude` for local cost usage); Linux CLI builds available.
 - WidgetKit widget mirrors the menu card snapshot.
-- Privacy-first: on-device parsing by default; browser cookies are opt-in and reused (no passwords stored).
+- Offline-first + privacy-first: all usage analytics stay local by default; no telemetry backend.
 
 ## Privacy note
-Wondering if CodexBar scans your disk? It doesn’t crawl your filesystem; it reads a small set of known locations (browser cookies/local storage, local JSONL logs) when the related features are enabled. See the discussion and audit notes in [issue #12](https://github.com/steipete/CodexBar/issues/12).
+Wondering if TokenBar scans your disk? It doesn’t crawl your filesystem; it reads a small set of known locations (browser cookies/local storage, local JSONL logs) when the related features are enabled. See the discussion and audit notes in [issue #12](https://github.com/tokenbar/tokenbar/issues/12).
 
 ## macOS permissions (why they’re needed)
 - **Full Disk Access (optional)**: only required to read Safari cookies/local storage for web-based providers (Codex web, Claude web, Cursor, Droid/Factory). If you don’t grant it, use Chrome/Firefox cookies or CLI-only sources instead.
@@ -78,15 +83,15 @@ Wondering if CodexBar scans your disk? It doesn’t crawl your filesystem; it re
   - z.ai API token is stored in Keychain from Preferences → Providers; Copilot stores its API token in Keychain during device flow.
   - **How do I prevent those keychain alerts?**
     - Open **Keychain Access.app** → login keychain → search the item (e.g., “Claude Code-credentials”).
-    - Open the item → **Access Control** → add `CodexBar.app` under “Always allow access by these applications”.
-    - Prefer adding just CodexBar (avoid “Allow all applications” unless you want it wide open).
-    - Relaunch CodexBar after saving.
+    - Open the item → **Access Control** → add `TokenBar.app` under “Always allow access by these applications”.
+    - Prefer adding just TokenBar (avoid “Allow all applications” unless you want it wide open).
+    - Relaunch TokenBar after saving.
     - Reference screenshot: ![Keychain access control](docs/keychain-allow.png)
   - **How to do the same for the browser?**
     - Find the browser’s “Safe Storage” key (e.g., “Chrome Safe Storage”, “Brave Safe Storage”, “Firefox”, “Microsoft Edge Safe Storage”).
-    - Open the item → **Access Control** → add `CodexBar.app` under “Always allow access by these applications”.
-    - This removes the prompt when CodexBar decrypts cookies for that browser.
-- **Files & Folders prompts (folder/volume access)**: CodexBar launches provider CLIs (codex/claude/gemini/antigravity). If those CLIs read a project directory or external drive, macOS may ask CodexBar for that folder/volume (e.g., Desktop or an external volume). This is driven by the CLI’s working directory, not background disk scanning.
+    - Open the item → **Access Control** → add `TokenBar.app` under “Always allow access by these applications”.
+    - This removes the prompt when TokenBar decrypts cookies for that browser.
+- **Files & Folders prompts (folder/volume access)**: TokenBar launches provider CLIs (codex/claude/gemini/antigravity). If those CLIs read a project directory or external drive, macOS may ask TokenBar for that folder/volume (e.g., Desktop or an external volume). This is driven by the CLI’s working directory, not background disk scanning.
 - **What we do not request**: no Screen Recording, Accessibility, or Automation permissions; no passwords are stored (browser cookies are reused when you opt in).
 
 ## Docs
@@ -109,10 +114,11 @@ Wondering if CodexBar scans your disk? It doesn’t crawl your filesystem; it re
 ## Build from source
 ```bash
 swift build -c release          # or debug for development
-./Scripts/package_app.sh        # builds CodexBar.app in-place
-CODEXBAR_SIGNING=adhoc ./Scripts/package_app.sh  # ad-hoc signing (no Apple Developer account)
-open CodexBar.app
+./Scripts/package_app.sh        # builds TokenBar.app in-place
+TOKENBAR_SIGNING=adhoc ./Scripts/package_app.sh  # ad-hoc signing (no Apple Developer account)
+open TokenBar.app
 ```
+Ad-hoc builds are for local development only. For end-user distribution, use signed/notarized release artifacts.
 
 Dev loop:
 ```bash
@@ -120,15 +126,15 @@ Dev loop:
 ```
 
 ## Related
-- ✂️ [Trimmy](https://github.com/steipete/Trimmy) — “Paste once, run once.” Flatten multi-line shell snippets so they paste and run.
+- ✂️ [Trimmy](https://github.com/tokenbar/Trimmy) — “Paste once, run once.” Flatten multi-line shell snippets so they paste and run.
 - 🧳 [MCPorter](https://mcporter.dev) — TypeScript toolkit + CLI for Model Context Protocol servers.
 - 🧿 [oracle](https://askoracle.dev) — Ask the oracle when you're stuck. Invoke GPT-5 Pro with a custom context and files.
 
 ## Looking for a Windows version?
-- [Win-CodexBar](https://github.com/Finesssee/Win-CodexBar)
+- [Win-TokenBar](https://github.com/Finesssee/Win-TokenBar)
 
 ## Credits
 Inspired by [ccusage](https://github.com/ryoppippi/ccusage) (MIT), specifically the cost usage tracking.
 
 ## License
-MIT • Peter Steinberger ([steipete](https://twitter.com/steipete))
+Proprietary • TokenBar Team ([tokenbar](https://twitter.com/tokenbar))

@@ -1,8 +1,8 @@
-# CodexBar Issue #139 Performance/Energy Simulation Report
+# TokenBar Issue #139 Performance/Energy Simulation Report
 
 Date: 2026-02-19
-Workspace: /Users/michalkrsik/windsurf_project_folder/CodexBar
-Issue: https://github.com/steipete/codexbar/issues/139
+Workspace: /Users/michalkrsik/windsurf_project_folder/TokenBar
+Issue: https://github.com/tokenbar/tokenbar/issues/139
 
 ## Purpose
 
@@ -26,7 +26,7 @@ Determine which suspected culprit(s) can produce the abnormal CPU/energy behavio
 ## Test Pass 1 (Primary Mechanism Pass)
 
 Artifacts:
-- /tmp/codexbar_perf_sim/results_20260219_111607
+- /tmp/tokenbar_perf_sim/results_20260219_111607
 
 Summary:
 
@@ -45,7 +45,7 @@ Interpretation:
 ## Test Pass 2 (Calibrated Energy Pass)
 
 Artifacts:
-- /tmp/codexbar_perf_sim/energy2_results_20260219_112350
+- /tmp/tokenbar_perf_sim/energy2_results_20260219_112350
 
 Sampling correction:
 - Switched to `top -l 2` and parsed the second sample for tracked PIDs to get non-zero `POWER` values.
@@ -88,7 +88,7 @@ A tiny toolbar app should never keep heavyweight background subprocess/UI loops 
 
 ## Limitations
 
-- These were controlled simulations, not a full end-user UI replay of `CodexBar.app` with all real auth/cookie/account paths.
+- These were controlled simulations, not a full end-user UI replay of `TokenBar.app` with all real auth/cookie/account paths.
 - `powermetrics` could not be used in this session due sudo restriction.
 
 ## Recommended Next Validation (Before Closing Issue)

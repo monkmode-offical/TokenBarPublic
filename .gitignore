@@ -1,9 +1,10 @@
 # Xcode user/session
 xcuserdata/
 .swiftpm/xcode/xcshareddata/
-.codexbar/config.json
+.tokenbar/config.json
 *.env
 *.local
+backend/data/*.json
 
 # Build products
 .build/
@@ -11,10 +12,10 @@ DerivedData
 
 # Bundles / artifacts
 # Main app bundle (any variation)
-CodexBar.app/
-CodexBar *.app/
-CodexBar_*.app/
-Codexbar.app/
+TokenBar.app/
+TokenBar *.app/
+TokenBar_*.app/
+TokenBar.app/
 # Release artifacts
 *.ipa
 *.dSYM*

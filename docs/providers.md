@@ -13,7 +13,7 @@ Legend: web (browser cookies/WebView), cli (RPC/PTy), oauth (API), api token, lo
 Source labels (CLI/header): `openai-web`, `web`, `oauth`, `api`, `local`, plus provider-specific CLI labels (e.g. `codex-cli`, `claude`).
 
 Cookie-based providers expose a Cookie source picker (Automatic or Manual) in Settings → Providers.
-Browser cookie imports are cached in Keychain (`com.steipete.codexbar.cache`, account `cookie.<provider>`) and reused
+Browser cookie imports are cached in Keychain (`com.tokenbar.cache`, account `cookie.<provider>`) and reused
 until the session is invalid, to avoid repeated Keychain prompts.
 
 | Provider | Strategies (ordered for auto) |
@@ -156,7 +156,7 @@ until the session is invalid, to avoid repeated Keychain prompts.
 - Details: `docs/ollama.md`.
 
 ## OpenRouter
-- API token from `~/.codexbar/config.json` (`providerConfig.openrouter.apiKey`) or `OPENROUTER_API_KEY` env var.
+- API token from `~/.tokenbar/config.json` (`providerConfig.openrouter.apiKey`) or `OPENROUTER_API_KEY` env var.
 - Credits endpoint: `https://openrouter.ai/api/v1/credits` (returns total credits purchased and usage).
 - Key info endpoint: `https://openrouter.ai/api/v1/key` (returns rate limit info).
 - Override base URL with `OPENROUTER_API_URL` env var.

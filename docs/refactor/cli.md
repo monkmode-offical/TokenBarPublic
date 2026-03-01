@@ -1,7 +1,7 @@
 ---
 summary: "CLI refactor plan: JSON-only errors, config validation, SettingsStore split."
 read_when:
-  - "Refactoring CodexBar CLI error handling or config parsing."
+  - "Refactoring TokenBar CLI error handling or config parsing."
   - "Splitting SettingsStore into smaller files."
   - "Adding config validation or CLI config commands."
 ---
@@ -43,15 +43,15 @@ read_when:
 - `tokenAccounts` only for providers in `TokenAccountSupportCatalog`.
 
 ## CLI commands
-- `codexbar config validate`
+- `tokenbar config validate`
   - Prints JSON issues (or text summary).
   - Exit non-zero if any errors.
-- (Optional) `codexbar config dump`
+- (Optional) `tokenbar config dump`
   - Prints normalized config JSON.
 
 ## Step-by-step implementation guide
 1. **Add validation types**
-   - `CodexBarConfigIssue` + `CodexBarConfigValidator` in `CodexBarCore/Config`.
+   - `TokenBarConfigIssue` + `TokenBarConfigValidator` in `TokenBarCore/Config`.
    - Keep file <500 LOC.
 2. **Hook validation into CLI**
    - New `config validate` command.
@@ -75,5 +75,5 @@ read_when:
 8. **Verification**
    - `swift test`, `swiftformat Sources Tests`, `swiftlint --strict`, `pnpm check`.
    - `./Scripts/compile_and_run.sh`.
-   - CLI e2e: `codexbar --json-only ...`, `codexbar config validate`.
+   - CLI e2e: `tokenbar --json-only ...`, `tokenbar config validate`.
 

@@ -18,7 +18,7 @@ echo -e "${BLUE}==> Fetching upstream changes...${NC}"
 if [ "$TARGET" = "all" ] || [ "$TARGET" = "upstream" ]; then
     git fetch upstream 2>/dev/null || {
         echo -e "${YELLOW}Adding upstream remote...${NC}"
-        git remote add upstream https://github.com/steipete/CodexBar.git
+        git remote add upstream https://github.com/tokenbar/tokenbar.git
         git fetch upstream
     }
 fi
@@ -33,9 +33,9 @@ fi
 
 echo ""
 
-# Check upstream (steipete)
+# Check upstream (tokenbar)
 if [ "$TARGET" = "all" ] || [ "$TARGET" = "upstream" ]; then
-    echo -e "${BLUE}==> Upstream (steipete/CodexBar) changes:${NC}"
+    echo -e "${BLUE}==> Upstream (tokenbar/tokenbar) changes:${NC}"
     
     UPSTREAM_COUNT=$(git log --oneline main..upstream/main --no-merges 2>/dev/null | wc -l | tr -d ' ')
     

@@ -10,13 +10,14 @@ read_when:
 ## Scripts
 - `Scripts/package_app.sh`: builds host arch by default; set `ARCHES="arm64 x86_64"` for universal. Verifies slices.
 - `Scripts/compile_and_run.sh`: uses host arch; pass `--release-universal` or `--release-arches="arm64 x86_64"` for release packaging.
+- `Scripts/build_dmg.sh`: defaults to identity signing for distributable DMGs and signs the DMG container. Ad-hoc DMGs are blocked unless you explicitly set `TOKENBAR_SIGNING=adhoc TOKENBAR_ALLOW_ADHOC_DMG=1` (local testing only).
 - `Scripts/sign-and-notarize.sh`: signs, notarizes, staples, zips (accepts `ARCHES` for universal).
 - `Scripts/make_appcast.sh`: generates Sparkle appcast and embeds HTML release notes.
 - `Scripts/changelog-to-html.sh`: converts the per-version changelog section to HTML for Sparkle.
 
 ## Bundle contents
-- `CodexBarWidget.appex` bundled with app-group entitlements.
-- `CodexBarCLI` copied to `CodexBar.app/Contents/Helpers/` for symlinking.
+- `TokenBarWidget.appex` bundled with app-group entitlements.
+- `TokenBarCLI` copied to `TokenBar.app/Contents/Helpers/` for symlinking.
 - SwiftPM resource bundles (e.g. `KeyboardShortcuts_KeyboardShortcuts.bundle`) copied into `Contents/Resources` (required for `KeyboardShortcuts.Recorder`).
 
 ## Releases

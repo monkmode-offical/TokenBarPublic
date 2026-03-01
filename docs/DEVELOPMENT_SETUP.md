@@ -10,9 +10,9 @@ read_when:
 
 ## Reducing Keychain Permission Prompts
 
-When developing CodexBar, you may see frequent keychain permission prompts like:
+When developing TokenBar, you may see frequent keychain permission prompts like:
 
-> **CodexBar wants to access key "Claude Code-credentials" in your keychain.**
+> **TokenBar wants to access key "Claude Code-credentials" in your keychain.**
 
 This happens because each rebuild creates a new code signature, and macOS treats it as a "different" app.
 
@@ -30,12 +30,12 @@ Use a stable development certificate that doesn't change between rebuilds:
 ./Scripts/setup_dev_signing.sh
 ```
 
-This creates a self-signed certificate named "CodexBar Development".
+This creates a self-signed certificate named "TokenBar Development".
 
 #### 2. Trust the Certificate
 
 1. Open **Keychain Access.app**
-2. Find **"CodexBar Development"** in the **login** keychain
+2. Find **"TokenBar Development"** in the **login** keychain
 3. Double-click it
 4. Expand the **"Trust"** section
 5. Set **"Code Signing"** to **"Always Trust"**
@@ -46,7 +46,7 @@ This creates a self-signed certificate named "CodexBar Development".
 Add this to your `~/.zshrc` (or `~/.bashrc` if using bash):
 
 ```bash
-export APP_IDENTITY='CodexBar Development'
+export APP_IDENTITY='TokenBar Development'
 ```
 
 Then restart your terminal:
@@ -63,25 +63,25 @@ source ~/.zshrc
 
 Now your builds will use the stable certificate, and keychain prompts will be much less frequent!
 
-> Note: `compile_and_run.sh` now auto-detects a valid signing identity (Developer ID or CodexBar Development).
+> Note: `compile_and_run.sh` now auto-detects a valid signing identity (Developer ID or TokenBar Development).
 > Set `APP_IDENTITY` to override the auto-detected choice.
 
 ---
 
 ## Cleaning Up Old App Bundles
 
-If you see multiple `CodexBar *.app` bundles in your project directory, you can clean them up:
+If you see multiple `TokenBar *.app` bundles in your project directory, you can clean them up:
 
 ```bash
 # Remove all numbered builds
-rm -rf "CodexBar "*.app
+rm -rf "TokenBar "*.app
 
 # The .gitignore already excludes these patterns:
-# - CodexBar.app
-# - CodexBar *.app/
+# - TokenBar.app
+# - TokenBar *.app/
 ```
 
-The build script creates `CodexBar.app` in the project root. Old numbered builds (like `CodexBar 2.app`) are created when Finder can't overwrite the running app.
+The build script creates `TokenBar.app` in the project root. Old numbered builds (like `TokenBar 2.app`) are created when Finder can't overwrite the running app.
 
 ---
 
@@ -94,11 +94,11 @@ The build script creates `CodexBar.app` in the project root. Old numbered builds
 ```
 
 This script:
-1. Kills existing CodexBar instances
+1. Kills existing TokenBar instances
 2. Runs `swift build` (release mode)
 3. Runs `swift test` (all tests)
 4. Packages the app with `./Scripts/package_app.sh`
-5. Launches `CodexBar.app`
+5. Launches `TokenBar.app`
 6. Verifies it stays running
 
 ### Quick Build (No Tests)
@@ -125,12 +125,12 @@ swift build  # defaults to debug
 
 ## Troubleshooting
 
-### "CodexBar is already running"
+### "TokenBar is already running"
 
 The compile_and_run script should kill old instances, but if it doesn't:
 
 ```bash
-pkill -x CodexBar || pkill -f CodexBar.app || true
+pkill -x TokenBar || pkill -f TokenBar.app || true
 ```
 
 ### "Permission denied" when accessing keychain
@@ -144,7 +144,7 @@ This happens when the running app locks the bundle. The compile_and_run script h
 If you still see old bundles:
 
 ```bash
-rm -rf "CodexBar "*.app
+rm -rf "TokenBar "*.app
 ```
 
 ### App doesn't reflect latest changes
@@ -159,6 +159,6 @@ Or manually:
 
 ```bash
 ./Scripts/package_app.sh
-pkill -x CodexBar || pkill -f CodexBar.app || true
-open -n CodexBar.app
+pkill -x TokenBar || pkill -f TokenBar.app || true
+open -n TokenBar.app
 ```

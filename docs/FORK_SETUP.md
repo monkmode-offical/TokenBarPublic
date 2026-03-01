@@ -7,7 +7,7 @@ read_when:
 
 # Fork Setup & Initial Configuration
 
-**One-time setup for managing your CodexBar fork with multiple upstreams**
+**One-time setup for managing your TokenBar fork with multiple upstreams**
 
 ---
 
@@ -18,10 +18,10 @@ read_when:
 ```bash
 # Verify your fork is origin
 git remote -v
-# Should show: origin  git@github.com:topoffunnel/CodexBar.git
+# Should show: origin  git@github.com:topoffunnel/TokenBar.git
 
-# Add upstream (steipete's original)
-git remote add upstream https://github.com/steipete/CodexBar.git
+# Add upstream (tokenbar's original)
+git remote add upstream https://github.com/tokenbar/tokenbar.git
 
 # Add quotio (inspiration source)
 git remote add quotio https://github.com/nguyenphutrong/quotio.git
@@ -32,8 +32,8 @@ git fetch --all
 # Verify setup
 git remote -v
 # Should show:
-# origin    git@github.com:topoffunnel/CodexBar.git (fetch/push)
-# upstream  https://github.com/steipete/CodexBar.git (fetch/push)
+# origin    git@github.com:topoffunnel/TokenBar.git (fetch/push)
+# upstream  https://github.com/tokenbar/tokenbar.git (fetch/push)
 # quotio    https://github.com/nguyenphutrong/quotio.git (fetch/push)
 ```
 
@@ -78,12 +78,12 @@ chmod +x Scripts/*.sh
 
 ## ⚠️ Critical Discovery: Upstream Removed Augment
 
-**IMPORTANT:** Upstream (steipete) has removed the Augment provider in recent commits!
+**IMPORTANT:** Upstream (tokenbar) has removed the Augment provider in recent commits!
 
 ```
 Files changed:
  .../Providers/Augment/AugmentStatusProbe.swift     | 627 deletions
- Tests/CodexBarTests/AugmentStatusProbeTests.swift  |  88 deletions
+ Tests/TokenBarTests/AugmentStatusProbeTests.swift  |  88 deletions
 ```
 
 **This validates our fork strategy:**
@@ -220,7 +220,7 @@ git commit -m "feat: multi-account management
 Inspired by quotio's account switching pattern:
 https://github.com/nguyenphutrong/quotio/...
 
-Implemented independently using CodexBar architecture."
+Implemented independently using TokenBar architecture."
 ```
 
 ---
@@ -261,9 +261,9 @@ swift test
 git push origin upstream-pr/fix-cursor-bonus
 
 # 6. Create PR on GitHub
-# Go to: https://github.com/steipete/CodexBar
+# Go to: https://github.com/tokenbar/tokenbar
 # Click "New Pull Request"
-# Select: base: steipete:main <- compare: topoffunnel:upstream-pr/fix-cursor-bonus
+# Select: base: tokenbar:main <- compare: topoffunnel:upstream-pr/fix-cursor-bonus
 ```
 
 ---

@@ -9,41 +9,41 @@ read_when:
 # Keychain Fix: Current State
 
 ## Scope change from the original doc
-The original fix (migrating legacy CodexBar keychain items to `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`) is
+The original fix (migrating legacy TokenBar keychain items to `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`) is
 still in place, but the architecture has changed:
 
-- Provider settings and manual secrets are now persisted in `~/.codexbar/config.json`.
+- Provider settings and manual secrets are now persisted in `~/.tokenbar/config.json`.
 - Legacy keychain stores are still present mainly to migrate old installs, then clear old items.
-- Keychain is still used for runtime cache entries (for example `com.steipete.codexbar.cache`) and Claude OAuth
+- Keychain is still used for runtime cache entries (for example `com.tokenbar.cache`) and Claude OAuth
   bootstrap reads from Claude CLI keychain (`Claude Code-credentials`).
 
 ## Then vs now
 
 | Previous statement in this doc | Current behavior |
 | --- | --- |
-| CodexBar stores provider credentials only in keychain | Manual/provider settings are config-file backed (`~/.codexbar/config.json`), while keychain is still used for runtime caches and Claude OAuth bootstrap fallback. |
-| `ClaudeOAuthCredentials.swift` migrated CodexBar-owned Claude OAuth keychain items | Claude OAuth primary source is Claude CLI keychain service (`Claude Code-credentials`), with CodexBar cache in `com.steipete.codexbar.cache` (`oauth.claude`). |
-| Migration runs in `CodexBarApp.init()` | Migration runs in `HiddenWindowView` `.task` via detached task (`KeychainMigration.migrateIfNeeded()`). |
+| TokenBar stores provider credentials only in keychain | Manual/provider settings are config-file backed (`~/.tokenbar/config.json`), while keychain is still used for runtime caches and Claude OAuth bootstrap fallback. |
+| `ClaudeOAuthCredentials.swift` migrated TokenBar-owned Claude OAuth keychain items | Claude OAuth primary source is Claude CLI keychain service (`Claude Code-credentials`), with TokenBar cache in `com.tokenbar.cache` (`oauth.claude`). |
+| Migration runs in `TokenBarApp.init()` | Migration runs in `HiddenWindowView` `.task` via detached task (`KeychainMigration.migrateIfNeeded()`). |
 | Post-migration prompts should be zero in all Claude paths | Legacy-store prompts are reduced; Claude OAuth bootstrap can still prompt when reading Claude CLI keychain, with cooldown + no-UI probes to prevent storms. |
 | Log category is `KeychainMigration` | Category is `keychain-migration` (kebab-case). |
 
 ## Current keychain surfaces for Claude
 
-### 1. Legacy CodexBar keychain migration (V1)
-`Sources/CodexBar/KeychainMigration.swift` migrates legacy `com.steipete.CodexBar` items (for example
+### 1. Legacy TokenBar keychain migration (V1)
+`Sources/TokenBar/KeychainMigration.swift` migrates legacy `com.tokenbar` items (for example
 `claude-cookie`) to `AfterFirstUnlockThisDeviceOnly`.
 
 - Gate key: `KeychainMigrationV1Completed`
 - Runs once unless flag is reset.
-- Covers legacy CodexBar-managed accounts only (not Claude CLI's own keychain service).
+- Covers legacy TokenBar-managed accounts only (not Claude CLI's own keychain service).
 
 ### 2. Claude OAuth bootstrap path
-`Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthCredentials.swift`
+`Sources/TokenBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthCredentials.swift`
 
 Load order for credentials:
-1. Environment override (`CODEXBAR_CLAUDE_OAUTH_TOKEN`, scopes env key).
+1. Environment override (`TOKENBAR_CLAUDE_OAUTH_TOKEN`, scopes env key).
 2. In-memory cache.
-3. CodexBar keychain cache (`com.steipete.codexbar.cache`, account `oauth.claude`).
+3. TokenBar keychain cache (`com.tokenbar.cache`, account `oauth.claude`).
 4. `~/.claude/.credentials.json`.
 5. Claude CLI keychain service: `Claude Code-credentials` (promptable fallback).
 
@@ -57,7 +57,7 @@ Prompt mitigation:
   and can update cached OAuth data when the token changes.
 
 ### Why two Claude keychain prompts can still happen on startup
-When CodexBar does not have usable OAuth credentials in its own cache (`com.steipete.codexbar.cache` / `oauth.claude`),
+When TokenBar does not have usable OAuth credentials in its own cache (`com.tokenbar.cache` / `oauth.claude`),
 bootstrap falls through to Claude CLI keychain reads.
 
 Current flow can perform up to two interactive reads in one bootstrap call:
@@ -75,9 +75,9 @@ The prompt copy differs because Security.framework is authorizing different oper
 This is OS/keychain ACL behavior, not a `ThisDeviceOnly` migration issue.
 
 ### 3. Claude web cookie cache
-`Sources/CodexBarCore/CookieHeaderCache.swift` and `Sources/CodexBarCore/KeychainCacheStore.swift`
+`Sources/TokenBarCore/CookieHeaderCache.swift` and `Sources/TokenBarCore/KeychainCacheStore.swift`
 
-- Browser-imported Claude session cookies are cached in keychain service `com.steipete.codexbar.cache`.
+- Browser-imported Claude session cookies are cached in keychain service `com.tokenbar.cache`.
 - Account key is `cookie.claude`.
 - Cache writes use `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`.
 
@@ -85,7 +85,7 @@ This is OS/keychain ACL behavior, not a `ThisDeviceOnly` migration issue.
 
 - Legacy store implementations (`CookieHeaderStore`, token stores, MiniMax stores) still write using
   `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`.
-- Keychain cache store (`com.steipete.codexbar.cache`) also writes with `ThisDeviceOnly`.
+- Keychain cache store (`com.tokenbar.cache`) also writes with `ThisDeviceOnly`.
 
 ## Disable keychain access behavior
 
@@ -100,32 +100,32 @@ Effects:
 
 ### Check legacy migration flag
 ```bash
-defaults read com.steipete.codexbar KeychainMigrationV1Completed
+defaults read com.tokenbar KeychainMigrationV1Completed
 ```
 
 ### Check Claude OAuth keychain cooldown
 ```bash
-defaults read com.steipete.codexbar claudeOAuthKeychainDeniedUntil
+defaults read com.tokenbar claudeOAuthKeychainDeniedUntil
 ```
 
 ### Inspect keychain-related logs
 ```bash
-log show --predicate 'subsystem == "com.steipete.codexbar" && (category == "keychain-migration" || category == "keychain-preflight" || category == "keychain-prompt" || category == "keychain-cache" || category == "claude-usage" || category == "cookie-cache")' --last 10m
+log show --predicate 'subsystem == "com.tokenbar" && (category == "keychain-migration" || category == "keychain-preflight" || category == "keychain-prompt" || category == "keychain-cache" || category == "claude-usage" || category == "cookie-cache")' --last 10m
 ```
 
 ### Reset migration for local testing
 ```bash
-defaults delete com.steipete.codexbar KeychainMigrationV1Completed
+defaults delete com.tokenbar KeychainMigrationV1Completed
 ./Scripts/compile_and_run.sh
 ```
 
 ## Key files (current)
 
-- `Sources/CodexBar/KeychainMigration.swift`
-- `Sources/CodexBar/HiddenWindowView.swift`
-- `Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthCredentials.swift`
-- `Sources/CodexBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthKeychainAccessGate.swift`
-- `Sources/CodexBarCore/KeychainAccessPreflight.swift`
-- `Sources/CodexBarCore/KeychainNoUIQuery.swift`
-- `Sources/CodexBarCore/KeychainCacheStore.swift`
-- `Sources/CodexBarCore/CookieHeaderCache.swift`
+- `Sources/TokenBar/KeychainMigration.swift`
+- `Sources/TokenBar/HiddenWindowView.swift`
+- `Sources/TokenBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthCredentials.swift`
+- `Sources/TokenBarCore/Providers/Claude/ClaudeOAuth/ClaudeOAuthKeychainAccessGate.swift`
+- `Sources/TokenBarCore/KeychainAccessPreflight.swift`
+- `Sources/TokenBarCore/KeychainNoUIQuery.swift`
+- `Sources/TokenBarCore/KeychainCacheStore.swift`
+- `Sources/TokenBarCore/CookieHeaderCache.swift`

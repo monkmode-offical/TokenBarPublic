@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Payment Complete · TokenBar</title>
+  <style>
+    :root {
+      --page-bg: #f3f5fa;
+      --panel: #ffffff;
+      --text: #0f1d3a;
+      --muted: #5c6e90;
+      --border: #d2dbe8;
+      --accent: #2f66d8;
+      --accent-strong: #1f4eb1;
+      --warning-bg: #fff6e6;
+      --warning-border: #ebbe6f;
+      --warning-title: #8b4f00;
+      --warning-text: #6f4d1f;
+      --status-ok-bg: #e9f9ee;
+      --status-ok-border: #8cd7a3;
+      --status-ok-text: #146839;
+      --status-warn-bg: #fff3e5;
+      --status-warn-border: #f0c37b;
+      --status-warn-text: #82510a;
+      --status-error-bg: #fff0ef;
+      --status-error-border: #f0a6a1;
+      --status-error-text: #8a261f;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at 10% 5%, #ffffff 0%, var(--page-bg) 58%);
+      color: var(--text);
+      font-family: "Avenir Next", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .wrap {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px 16px;
+    }
+    .card {
+      width: min(980px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: clamp(22px, 4vw, 46px);
+      box-shadow: 0 24px 50px rgba(15, 29, 58, 0.08);
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+    p {
+      margin: 0;
+      line-height: 1.5;
+      color: var(--muted);
+      font-size: 17px;
+    }
+    .lead {
+      margin-top: 14px;
+      max-width: 860px;
+    }
+    .status {
+      margin-top: 16px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    .status.ok {
+      background: var(--status-ok-bg);
+      border-color: var(--status-ok-border);
+      color: var(--status-ok-text);
+    }
+    .status.warn {
+      background: var(--status-warn-bg);
+      border-color: var(--status-warn-border);
+      color: var(--status-warn-text);
+    }
+    .status.error {
+      background: var(--status-error-bg);
+      border-color: var(--status-error-border);
+      color: var(--status-error-text);
+    }
+    .notice {
+      margin-top: 24px;
+      border: 1px solid var(--warning-border);
+      background: var(--warning-bg);
+      border-radius: 16px;
+      padding: 18px 20px;
+    }
+    .notice-title {
+      margin: 0;
+      color: var(--warning-title);
+      font-size: 32px;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      font-weight: 800;
+    }
+    .notice-body {
+      margin-top: 8px;
+      color: var(--warning-text);
+      max-width: 860px;
+      font-size: 17px;
+    }
+    .panel {
+      margin-top: 22px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: #fbfcff;
+      padding: 20px;
+    }
+    .panel-title {
+      font-size: 16px;
+      font-weight: 750;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #425c8f;
+      margin: 0;
+    }
+    .key-box {
+      margin-top: 12px;
+      border: 1px solid #cfd8e9;
+      background: #f4f7fc;
+      border-radius: 14px;
+      padding: 18px 16px;
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      word-break: break-word;
+    }
+    .mono {
+      color: #16233f;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 30px;
+      letter-spacing: 0.02em;
+    }
+    .actions {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    button {
+      appearance: none;
+      border: 1px solid #b8c6df;
+      color: #18315f;
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 11px 20px;
+      font-size: 16px;
+      font-weight: 650;
+      cursor: pointer;
+      transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease, transform 0.14s ease;
+    }
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: #9db1d4;
+      background: #f6f9ff;
+    }
+    button:disabled {
+      cursor: not-allowed;
+      color: #95a5c2;
+      border-color: #d6ddea;
+      background: #f2f5fa;
+    }
+    .button-primary {
+      border-color: #2d62d5;
+      color: #ffffff;
+      background: var(--accent);
+    }
+    .button-primary:hover:not(:disabled) {
+      border-color: #224ca8;
+      background: var(--accent-strong);
+    }
+    .confirm {
+      margin-top: 22px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fbfcff;
+      padding: 14px 16px;
+      color: #243a67;
+      font-size: 16px;
+    }
+    .confirm input[type="checkbox"] {
+      width: 19px;
+      height: 19px;
+      margin-top: 2px;
+      accent-color: var(--accent);
+    }
+    .next-title {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      color: #132750;
+    }
+    .next-copy {
+      margin-top: 10px;
+      max-width: 820px;
+    }
+    .open-wrap {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .detail {
+      margin-top: 12px;
+      font-size: 15px;
+      color: #526c99;
+    }
+    @media (max-width: 860px) {
+      .notice-title {
+        font-size: 28px;
+      }
+      .mono {
+        font-size: 22px;
+      }
+      .next-title {
+        font-size: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <h1>Payment complete</h1>
+      <p class="lead">Your lifetime purchase was successful. Save your license key now before leaving this page.</p>
+      <div id="status" class="status warn">Issuing license key…</div>
+
+      <div class="notice">
+        <h2 class="notice-title">Important: Copy this key now</h2>
+        <p id="noticeDetail" class="notice-body">
+          This is your only key reveal screen. Save your license key now. You need this key to unlock TokenBar.
+        </p>
+      </div>
+
+      <div id="licensePanel" class="panel" hidden>
+        <h3 class="panel-title">Your license key</h3>
+        <div class="key-box">
+          <div id="licenseKey" class="mono">Waiting for key…</div>
+        </div>
+        <div class="actions">
+          <button id="copyBtn" class="button-primary" disabled>Copy license key</button>
+          <button id="downloadBtn" disabled>Download key file</button>
+        </div>
+      </div>
+
+      <label class="confirm">
+        <input id="savedConfirm" type="checkbox" disabled />
+        <span>I saved my license key in a safe place and understand I need it to unlock TokenBar.</span>
+      </label>
+
+      <div class="panel">
+        <h2 class="next-title">Next step: open TokenBar</h2>
+        <p class="next-copy">
+          After confirming above, this page attempts to open TokenBar and send your key. TokenBar should open Settings
+          → General with your key prefilled.
+        </p>
+        <div class="open-wrap">
+          <button id="openBtn" disabled>Open TokenBar and continue</button>
+        </div>
+        <p id="detail" class="detail">Waiting for license key…</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const statusEl = document.getElementById("status");
+    const detailEl = document.getElementById("detail");
+    const noticeDetailEl = document.getElementById("noticeDetail");
+    const licensePanelEl = document.getElementById("licensePanel");
+    const licenseKeyEl = document.getElementById("licenseKey");
+    const copyBtn = document.getElementById("copyBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const savedConfirmEl = document.getElementById("savedConfirm");
+    const openBtn = document.getElementById("openBtn");
+    let currentLicenseKey = "";
+
+    function setStatus(text, kind = "warn") {
+      statusEl.textContent = text;
+      statusEl.className = `status ${kind}`;
+    }
+
+    function updateInteractionState() {
+      const hasKey = currentLicenseKey.length > 0;
+      licensePanelEl.hidden = !hasKey;
+      copyBtn.disabled = !hasKey;
+      downloadBtn.disabled = !hasKey;
+      savedConfirmEl.disabled = !hasKey;
+      if (!hasKey) {
+        savedConfirmEl.checked = false;
+      }
+      openBtn.disabled = !(hasKey && savedConfirmEl.checked);
+    }
+
+    function keyFileContents(licenseKey) {
+      return [
+        "TokenBar License Key",
+        "",
+        `key=${licenseKey}`,
+        "",
+        "Keep this key safe. It is required to unlock TokenBar.",
+      ].join("\n");
+    }
+
+    function triggerDownload(licenseKey) {
+      const blob = new Blob([keyFileContents(licenseKey)], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "tokenbar-license-key.txt";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function run() {
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get("session_id");
+      if (!sessionId) {
+        setStatus("Missing session_id", "error");
+        detailEl.textContent = "This page needs ?session_id=... from Stripe Checkout success_url.";
+        noticeDetailEl.textContent = "Unable to issue a key because this page is missing a Stripe session id.";
+        return;
+      }
+
+      try {
+        const rawDeviceId = localStorage.getItem("tokenbar_device_id");
+        const deviceId = rawDeviceId || crypto.randomUUID();
+        localStorage.setItem("tokenbar_device_id", deviceId);
+
+        const response = await fetch("/api/license/issue-from-session", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ session_id: sessionId, device_id: deviceId }),
+        });
+        const payload = await response.json();
+
+        if (!response.ok) {
+          setStatus("Could not issue license key", "error");
+          detailEl.textContent = payload.message || payload.error || "Unknown error.";
+          noticeDetailEl.textContent = "We could not issue your key yet. Keep this page open and retry shortly.";
+          return;
+        }
+
+        const licenseKey = payload.license_key;
+        if (!licenseKey) {
+          setStatus("No license key returned", "error");
+          detailEl.textContent = "Session was paid but server did not return a key.";
+          noticeDetailEl.textContent = "Your payment succeeded, but a key was not returned. Contact support with your session id.";
+          return;
+        }
+
+        currentLicenseKey = licenseKey;
+        licenseKeyEl.textContent = licenseKey;
+        setStatus("License key ready", "ok");
+        noticeDetailEl.textContent = "This is your only key reveal screen. Save your license key before continuing.";
+        detailEl.textContent = "Confirm key saved first to continue.";
+        updateInteractionState();
+      } catch (error) {
+        setStatus("Could not reach server", "error");
+        detailEl.textContent = String(error);
+        noticeDetailEl.textContent = "Could not reach the license server. Keep this tab open and retry.";
+      }
+    }
+
+    copyBtn.addEventListener("click", async () => {
+      if (!currentLicenseKey) {
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(currentLicenseKey);
+        copyBtn.textContent = "Copied";
+        setTimeout(() => {
+          copyBtn.textContent = "Copy license key";
+        }, 1300);
+      } catch {
+        copyBtn.textContent = "Copy failed";
+        setTimeout(() => {
+          copyBtn.textContent = "Copy license key";
+        }, 1300);
+      }
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      if (!currentLicenseKey) {
+        return;
+      }
+      triggerDownload(currentLicenseKey);
+    });
+
+    savedConfirmEl.addEventListener("change", () => {
+      updateInteractionState();
+      if (savedConfirmEl.checked) {
+        detailEl.textContent = "Ready to open TokenBar.";
+      } else {
+        detailEl.textContent = "Confirm key saved first to continue.";
+      }
+    });
+
+    openBtn.addEventListener("click", () => {
+      if (!currentLicenseKey || !savedConfirmEl.checked) {
+        return;
+      }
+      const deepLink = `tokenbar://license?key=${encodeURIComponent(currentLicenseKey)}`;
+      detailEl.textContent = "Attempting to open TokenBar…";
+      window.location.href = deepLink;
+      setTimeout(() => {
+        detailEl.textContent = "If TokenBar did not open, launch it manually and paste your key in Settings → General.";
+      }, 1400);
+    });
+
+    updateInteractionState();
+    run();
+  </script>
+</body>
+</html>

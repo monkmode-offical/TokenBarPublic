@@ -14,11 +14,11 @@ either a Bearer API token or a session cookie header.
 ## Data sources + fallback order
 
 1) **API token** (preferred)
-   - Set in Preferences → Providers → MiniMax (stored in `~/.codexbar/config.json`) or `MINIMAX_API_KEY`.
+   - Set in Preferences → Providers → MiniMax (stored in `~/.tokenbar/config.json`) or `MINIMAX_API_KEY`.
    - When present, MiniMax uses the API token and ignores cookies entirely.
 
 2) **Cached cookie header** (automatic, only when no API token)
-   - Keychain cache: `com.steipete.codexbar.cache` (account `cookie.minimax`).
+   - Keychain cache: `com.tokenbar.cache` (account `cookie.minimax`).
 
 3) **Browser cookie import** (automatic)
    - Cookie order from provider metadata (default: Safari → Chrome → Firefox).
@@ -33,7 +33,7 @@ either a Bearer API token or a session cookie header.
    - Also extracts `GroupId` when present (appends query param).
 
 5) **Manual session cookie header** (optional override)
-   - Stored in `~/.codexbar/config.json` via Preferences → Providers → MiniMax (Cookie source → Manual).
+   - Stored in `~/.tokenbar/config.json` via Preferences → Providers → MiniMax (Cookie source → Manual).
    - Accepts a raw `Cookie:` header or a full "Copy as cURL" string.
    - When a cURL string is pasted, MiniMax extracts the cookie header plus `Authorization: Bearer …` and
      `GroupId=…` for the remains API.
@@ -81,6 +81,6 @@ either a Bearer API token or a session cookie header.
 - Plan/tier: best-effort from response fields or HTML title.
 
 ## Key files
-- `Sources/CodexBarCore/Providers/MiniMax/MiniMaxUsageFetcher.swift`
-- `Sources/CodexBarCore/Providers/MiniMax/MiniMaxProviderDescriptor.swift`
-- `Sources/CodexBar/Providers/MiniMax/MiniMaxProviderImplementation.swift`
+- `Sources/TokenBarCore/Providers/MiniMax/MiniMaxUsageFetcher.swift`
+- `Sources/TokenBarCore/Providers/MiniMax/MiniMaxProviderDescriptor.swift`
+- `Sources/TokenBar/Providers/MiniMax/MiniMaxProviderImplementation.swift`

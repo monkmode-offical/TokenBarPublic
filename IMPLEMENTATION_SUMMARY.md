@@ -1,4 +1,4 @@
-# CodexBar Fork - Implementation Summary
+# TokenBar Fork - Implementation Summary
 
 **Date:** January 4, 2026  
 **Implementer:** Augment AI Assistant  
@@ -106,13 +106,13 @@
 
 ## 🚨 Critical Discovery
 
-**Upstream (steipete) has REMOVED the Augment provider!**
+**Upstream (tokenbar) has REMOVED the Augment provider!**
 
 **Evidence:**
 ```
 Files changed in upstream:
  .../Providers/Augment/AugmentStatusProbe.swift     | 627 deletions
- Tests/CodexBarTests/AugmentStatusProbeTests.swift  |  88 deletions
+ Tests/TokenBarTests/AugmentStatusProbeTests.swift  |  88 deletions
 ```
 
 **Impact:**
@@ -194,7 +194,7 @@ When syncing with upstream, must cherry-pick commits selectively to avoid losing
 
 **1. Setup Git Remotes**
 ```bash
-git remote add upstream https://github.com/steipete/CodexBar.git
+git remote add upstream https://github.com/tokenbar/tokenbar.git
 git remote add quotio https://github.com/nguyenphutrong/quotio.git
 git fetch --all
 ```
@@ -233,7 +233,7 @@ git merge feature/augment-integration
 
 **7. Complete Phase 2**
 - Enhanced Augment diagnostics
-- Proper logging with CodexBarLog
+- Proper logging with TokenBarLog
 - Session keepalive monitoring
 
 **8. Quotio Analysis**
