@@ -3,6 +3,19 @@
     <channel>
         <title>TokenBar</title>
         <item>
+            <title>0.18.1</title>
+            <pubDate>Sun, 01 Mar 2026 18:11:05 +0000</pubDate>
+            <link>https://raw.githubusercontent.com/monkmode-offical/TokenBarPublic/main/appcast.xml</link>
+            <sparkle:version>52</sparkle:version>
+            <sparkle:shortVersionString>0.18.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h2>CodexBar 0.18.1</h2>
+<p>Latest CodexBar update.</p>
+<p><a href="https://github.com/steipete/CodexBar/blob/main/CHANGELOG.md">View full changelog</a></p>
+]]></description>
+            <enclosure url="https://github.com/monkmode-offical/TokenBarPublic/releases/download/v0.18.1/TokenBar-0.18.1.zip" length="24562127" type="application/octet-stream" sparkle:edSignature="MAott2ihYkRv5tzDr5NU/Q68x/cRO+5WHoNqp7uBmJ6E1Oiy+vMY7ydlXYb7TuJ5nG7Xnc9MhbazZvw40aAsBw=="/>
+        </item>
+        <item>
             <title>0.18.0-beta.3</title>
             <pubDate>Sun, 01 Mar 2026 11:30:34 -0500</pubDate>
             <link>https://raw.githubusercontent.com/monkmode-offical/TokenBarPublic/main/appcast.xml</link>
