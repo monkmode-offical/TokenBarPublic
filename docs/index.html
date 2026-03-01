@@ -47,7 +47,7 @@
           <a
             id="download-btn-header"
             class="btn primary"
-            href="https://github.com/monkmode-offical/TokenBarPublic/releases/latest"
+            href="https://github.com/monkmode-offical/TokenBarPublic/releases/latest/download/TokenBar-latest.dmg"
             >Download</a
           >
           <a class="btn ghost" href="https://github.com/monkmode-offical/TokenBar">Source</a>
@@ -74,7 +74,7 @@
             <a
               id="download-btn-hero"
               class="btn primary"
-              href="https://github.com/monkmode-offical/TokenBarPublic/releases/latest"
+              href="https://github.com/monkmode-offical/TokenBarPublic/releases/latest/download/TokenBar-latest.dmg"
               >Download Latest</a
             >
             <a class="btn" href="https://github.com/monkmode-offical/TokenBar">View on GitHub</a>
@@ -218,46 +218,6 @@
         });
       }
 
-      async function hydrateLatestDownloadLinks() {
-        const releasePage = "https://github.com/monkmode-offical/TokenBarPublic/releases/latest";
-        const apiUrl = "https://api.github.com/repos/monkmode-offical/TokenBarPublic/releases/latest";
-        const buttons = ["download-btn-header", "download-btn-hero"]
-          .map((id) => document.getElementById(id))
-          .filter(Boolean);
-
-        if (!buttons.length) {
-          return;
-        }
-
-        try {
-          const response = await fetch(apiUrl, {
-            headers: { Accept: "application/vnd.github+json" },
-          });
-          if (!response.ok) {
-            throw new Error(`GitHub API returned ${response.status}`);
-          }
-
-          const release = await response.json();
-          const assets = Array.isArray(release.assets) ? release.assets : [];
-          const preferredAsset =
-            assets.find((asset) => typeof asset.name === "string" && asset.name.toLowerCase().endsWith(".dmg")) ||
-            assets.find((asset) => typeof asset.name === "string" && asset.name.toLowerCase().endsWith(".zip"));
-          const downloadUrl = preferredAsset?.browser_download_url || release.html_url || releasePage;
-
-          buttons.forEach((button) => {
-            button.href = downloadUrl;
-            if (release.tag_name) {
-              button.title = `Download ${release.tag_name}`;
-            }
-          });
-        } catch (_error) {
-          buttons.forEach((button) => {
-            button.href = releasePage;
-          });
-        }
-      }
-
-      hydrateLatestDownloadLinks();
     </script>
   </body>
 </html>

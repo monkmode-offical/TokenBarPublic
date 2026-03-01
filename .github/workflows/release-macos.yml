@@ -218,15 +218,23 @@ jobs:
           ZIP="TokenBar-${VERSION}.zip"
           DSYM_ZIP="TokenBar-${VERSION}.dSYM.zip"
           DMG="TokenBar-${VERSION}.dmg"
+          LATEST_ZIP="TokenBar-latest.zip"
+          LATEST_DMG="TokenBar-latest.dmg"
+
+          /bin/cp -f "${ZIP}" "${LATEST_ZIP}"
+          /bin/cp -f "${DMG}" "${LATEST_DMG}"
 
           if [[ -n "${UPDATES_REPO_TOKEN}" ]]; then
             export GH_TOKEN="${UPDATES_REPO_TOKEN}"
           fi
 
           if gh release view "${TAG}" --repo "${TARGET_REPO}" >/dev/null 2>&1; then
-            gh release upload "${TAG}" "${ZIP}" "${DSYM_ZIP}" "${DMG}" --repo "${TARGET_REPO}" --clobber
+            gh release upload "${TAG}" \
+              "${ZIP}" "${DSYM_ZIP}" "${DMG}" "${LATEST_ZIP}" "${LATEST_DMG}" \
+              --repo "${TARGET_REPO}" \
+              --clobber
           else
-            gh release create "${TAG}" "${ZIP}" "${DSYM_ZIP}" "${DMG}" \
+            gh release create "${TAG}" "${ZIP}" "${DSYM_ZIP}" "${DMG}" "${LATEST_ZIP}" "${LATEST_DMG}" \
               --repo "${TARGET_REPO}" \
               --title "TokenBar ${VERSION}" \
               --target main \
