@@ -23,7 +23,9 @@ jobs:
     runs-on: macos-15
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      TOKENBAR_SPARKLE_PUBLIC_KEY: ${{ vars.TOKENBAR_SPARKLE_PUBLIC_KEY }}
+      UPDATES_REPO_TOKEN: ${{ secrets.UPDATES_REPO_TOKEN }}
+      TOKENBAR_SPARKLE_PUBLIC_KEY: ${{ vars.TOKENBAR_SPARKLE_PUBLIC_KEY || secrets.TOKENBAR_SPARKLE_PUBLIC_KEY }}
+      TOKENBAR_UPDATES_REPO: ${{ vars.TOKENBAR_UPDATES_REPO }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -69,12 +71,13 @@ jobs:
             exit 1
           fi
 
-          REPO_SLUG="${GITHUB_REPOSITORY}"
-          FEED_URL="https://raw.githubusercontent.com/${REPO_SLUG}/main/appcast.xml"
-          DOWNLOAD_PREFIX="https://github.com/${REPO_SLUG}/releases/download/${TAG}/"
+          TARGET_REPO="${TOKENBAR_UPDATES_REPO:-${GITHUB_REPOSITORY}}"
+          FEED_URL="https://raw.githubusercontent.com/${TARGET_REPO}/main/appcast.xml"
+          DOWNLOAD_PREFIX="https://github.com/${TARGET_REPO}/releases/download/${TAG}/"
 
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "target_repo=${TARGET_REPO}" >> "$GITHUB_OUTPUT"
           echo "feed_url=${FEED_URL}" >> "$GITHUB_OUTPUT"
           echo "download_prefix=${DOWNLOAD_PREFIX}" >> "$GITHUB_OUTPUT"
 
@@ -86,6 +89,8 @@ jobs:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+          TARGET_REPO: ${{ steps.meta.outputs.target_repo }}
+          UPDATES_REPO_TOKEN: ${{ secrets.UPDATES_REPO_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
@@ -98,6 +103,9 @@ jobs:
           [[ -z "${APP_STORE_CONNECT_ISSUER_ID}" ]] && missing+=("APP_STORE_CONNECT_ISSUER_ID")
           [[ -z "${SPARKLE_PRIVATE_KEY}" ]] && missing+=("SPARKLE_PRIVATE_KEY")
           [[ -z "${TOKENBAR_SPARKLE_PUBLIC_KEY}" ]] && missing+=("TOKENBAR_SPARKLE_PUBLIC_KEY (repository variable)")
+          if [[ "${TARGET_REPO}" != "${GITHUB_REPOSITORY}" && -z "${UPDATES_REPO_TOKEN}" ]]; then
+            missing+=("UPDATES_REPO_TOKEN (required for publishing to ${TARGET_REPO})")
+          fi
 
           if (( ${#missing[@]} > 0 )); then
             printf 'Missing required GitHub secrets/variables:\n' >&2
@@ -169,9 +177,19 @@ jobs:
 
           SPARKLE_DIR="${RUNNER_TEMP}/Sparkle"
           /usr/bin/git clone --depth 1 https://github.com/sparkle-project/Sparkle.git "${SPARKLE_DIR}"
-          swift build --package-path "${SPARKLE_DIR}" -c release --product generate_appcast
-          swift build --package-path "${SPARKLE_DIR}" -c release --product sign_update
-          BIN_DIR="$(swift build --package-path "${SPARKLE_DIR}" -c release --product generate_appcast --show-bin-path)"
+          /usr/bin/xcodebuild \
+            -project "${SPARKLE_DIR}/Sparkle.xcodeproj" \
+            -scheme generate_appcast \
+            -configuration Release \
+            -derivedDataPath "${SPARKLE_DIR}/.derived" \
+            build
+          /usr/bin/xcodebuild \
+            -project "${SPARKLE_DIR}/Sparkle.xcodeproj" \
+            -scheme sign_update \
+            -configuration Release \
+            -derivedDataPath "${SPARKLE_DIR}/.derived" \
+            build
+          BIN_DIR="${SPARKLE_DIR}/.derived/Build/Products/Release"
           echo "${BIN_DIR}" >> "$GITHUB_PATH"
           command -v generate_appcast >/dev/null 2>&1
           command -v sign_update >/dev/null 2>&1
@@ -186,8 +204,11 @@ jobs:
         run: |
           set -euo pipefail
           ./Scripts/sign-and-notarize.sh
+          ./Scripts/build_dmg.sh
 
       - name: Publish app release assets
+        env:
+          TARGET_REPO: ${{ steps.meta.outputs.target_repo }}
         shell: bash
         run: |
           set -euo pipefail
@@ -195,29 +216,48 @@ jobs:
           VERSION="${{ steps.meta.outputs.version }}"
           ZIP="TokenBar-${VERSION}.zip"
           DSYM_ZIP="TokenBar-${VERSION}.dSYM.zip"
+          DMG="TokenBar-${VERSION}.dmg"
 
-          if gh release view "${TAG}" >/dev/null 2>&1; then
-            gh release upload "${TAG}" "${ZIP}" "${DSYM_ZIP}" --clobber
+          if [[ -n "${UPDATES_REPO_TOKEN}" ]]; then
+            export GH_TOKEN="${UPDATES_REPO_TOKEN}"
+          fi
+
+          if gh release view "${TAG}" --repo "${TARGET_REPO}" >/dev/null 2>&1; then
+            gh release upload "${TAG}" "${ZIP}" "${DSYM_ZIP}" "${DMG}" --repo "${TARGET_REPO}" --clobber
           else
-            gh release create "${TAG}" "${ZIP}" "${DSYM_ZIP}" \
+            gh release create "${TAG}" "${ZIP}" "${DSYM_ZIP}" "${DMG}" \
+              --repo "${TARGET_REPO}" \
               --title "TokenBar ${VERSION}" \
+              --target main \
               --generate-notes
           fi
 
       - name: Generate and verify appcast
         env:
           SPARKLE_DOWNLOAD_URL_PREFIX: ${{ steps.meta.outputs.download_prefix }}
+          TARGET_REPO: ${{ steps.meta.outputs.target_repo }}
         shell: bash
         run: |
           set -euo pipefail
           VERSION="${{ steps.meta.outputs.version }}"
           ZIP="TokenBar-${VERSION}.zip"
 
-          /usr/bin/git fetch origin main
-          if /usr/bin/git show origin/main:appcast.xml > appcast.xml 2>/dev/null; then
-            echo "Loaded appcast.xml from origin/main."
+          if [[ -n "${UPDATES_REPO_TOKEN}" ]]; then
+            export GH_TOKEN="${UPDATES_REPO_TOKEN}"
+          fi
+
+          if gh api "repos/${TARGET_REPO}/contents/appcast.xml" --jq .content > "${RUNNER_TEMP}/appcast.b64" 2>/dev/null; then
+            /usr/bin/python3 - "${RUNNER_TEMP}/appcast.b64" appcast.xml <<'PY'
+import base64
+import pathlib
+import sys
+
+src = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8").replace("\n", "")
+pathlib.Path(sys.argv[2]).write_bytes(base64.b64decode(src))
+PY
+            echo "Loaded appcast.xml from ${TARGET_REPO}."
           else
-            echo "Could not load appcast.xml from origin/main; using checkout copy."
+            echo "Could not load appcast.xml from ${TARGET_REPO}; using checkout copy."
           fi
 
           if /usr/bin/grep -q "<sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>" appcast.xml; then
@@ -229,30 +269,68 @@ jobs:
           ./Scripts/verify_appcast.sh "${VERSION}"
 
       - name: Upload appcast asset to release
+        env:
+          TARGET_REPO: ${{ steps.meta.outputs.target_repo }}
         shell: bash
         run: |
           set -euo pipefail
-          gh release upload "${{ steps.meta.outputs.tag }}" appcast.xml --clobber
+          if [[ -n "${UPDATES_REPO_TOKEN}" ]]; then
+            export GH_TOKEN="${UPDATES_REPO_TOKEN}"
+          fi
+          gh release upload "${{ steps.meta.outputs.tag }}" appcast.xml --repo "${TARGET_REPO}" --clobber
 
       - name: Commit appcast.xml to main
+        env:
+          TARGET_REPO: ${{ steps.meta.outputs.target_repo }}
         shell: bash
         run: |
           set -euo pipefail
           VERSION="${{ steps.meta.outputs.version }}"
-          GENERATED_APPCAST="${RUNNER_TEMP}/appcast.xml.generated"
-          cp appcast.xml "${GENERATED_APPCAST}"
+          COMMIT_MESSAGE="docs: update appcast for ${VERSION}"
 
-          /usr/bin/git fetch origin main
-          /usr/bin/git checkout -B main origin/main
-          cp "${GENERATED_APPCAST}" appcast.xml
+          if [[ -n "${UPDATES_REPO_TOKEN}" ]]; then
+            export GH_TOKEN="${UPDATES_REPO_TOKEN}"
+          fi
 
-          if /usr/bin/git diff --quiet -- appcast.xml; then
-            echo "No appcast changes to commit."
+          if [[ "${TARGET_REPO}" == "${GITHUB_REPOSITORY}" ]]; then
+            GENERATED_APPCAST="${RUNNER_TEMP}/appcast.xml.generated"
+            cp appcast.xml "${GENERATED_APPCAST}"
+
+            /usr/bin/git fetch origin main
+            /usr/bin/git checkout -B main origin/main
+            cp "${GENERATED_APPCAST}" appcast.xml
+
+            if /usr/bin/git diff --quiet -- appcast.xml; then
+              echo "No appcast changes to commit."
+              exit 0
+            fi
+
+            /usr/bin/git config user.name "github-actions[bot]"
+            /usr/bin/git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            /usr/bin/git add appcast.xml
+            /usr/bin/git commit -m "${COMMIT_MESSAGE}"
+            /usr/bin/git push origin HEAD:main
             exit 0
           fi
 
-          /usr/bin/git config user.name "github-actions[bot]"
-          /usr/bin/git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          /usr/bin/git add appcast.xml
-          /usr/bin/git commit -m "docs: update appcast for ${VERSION}"
-          /usr/bin/git push origin HEAD:main
+          CONTENT_B64="$(/usr/bin/base64 < appcast.xml | /usr/bin/tr -d '\n')"
+          EXISTING_SHA="$(gh api "repos/${TARGET_REPO}/contents/appcast.xml" --jq .sha 2>/dev/null || true)"
+
+          PAYLOAD="${RUNNER_TEMP}/appcast-update.json"
+          if [[ -n "${EXISTING_SHA}" ]]; then
+            /usr/bin/jq -n \
+              --arg message "${COMMIT_MESSAGE}" \
+              --arg content "${CONTENT_B64}" \
+              --arg branch "main" \
+              --arg sha "${EXISTING_SHA}" \
+              '{message: $message, content: $content, branch: $branch, sha: $sha}' > "${PAYLOAD}"
+          else
+            /usr/bin/jq -n \
+              --arg message "${COMMIT_MESSAGE}" \
+              --arg content "${CONTENT_B64}" \
+              --arg branch "main" \
+              '{message: $message, content: $content, branch: $branch}' > "${PAYLOAD}"
+          fi
+
+          gh api "repos/${TARGET_REPO}/contents/appcast.xml" -X PUT --input "${PAYLOAD}" >/dev/null
+          echo "Committed appcast.xml to ${TARGET_REPO}:main"
