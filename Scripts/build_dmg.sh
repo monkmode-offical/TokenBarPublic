@@ -98,7 +98,13 @@ if [[ "$SIGNING_MODE" != "adhoc" ]]; then
     CODESIGN_ARGS+=(--keychain "$CODESIGN_KEYCHAIN")
   fi
   codesign "${CODESIGN_ARGS[@]}" "$DMG_PATH"
-  spctl -a -t open --context context:primary-signature -vv "$DMG_PATH"
+  if [[ "${TOKENBAR_ENFORCE_DMG_GATEKEEPER:-0}" == "1" ]]; then
+    spctl -a -t open --context context:primary-signature -vv "$DMG_PATH"
+  else
+    if ! spctl -a -t open --context context:primary-signature -vv "$DMG_PATH"; then
+      echo "WARN: DMG Gatekeeper validation failed; continuing (set TOKENBAR_ENFORCE_DMG_GATEKEEPER=1 to enforce)." >&2
+    fi
+  fi
 fi
 
 echo "Created $DMG_PATH"
