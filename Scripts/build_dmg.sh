@@ -9,6 +9,7 @@ cd "$ROOT"
 source "$ROOT/version.env"
 SIGNING_MODE="${TOKENBAR_SIGNING:-identity}"
 ALLOW_ADHOC_DMG="${TOKENBAR_ALLOW_ADHOC_DMG:-0}"
+SKIP_PACKAGE="${TOKENBAR_SKIP_PACKAGE:-0}"
 DEFAULT_RELEASE_IDENTITY="Developer ID Application: TokenBar Team (Y5PE65HELJ)"
 
 has_signing_identity() {
@@ -63,7 +64,11 @@ EOF
   export APP_IDENTITY="$RELEASE_IDENTITY"
 fi
 
-TOKENBAR_SIGNING="$SIGNING_MODE" "$ROOT/Scripts/package_app.sh" "$CONF"
+if [[ "$SKIP_PACKAGE" != "1" ]]; then
+  TOKENBAR_SIGNING="$SIGNING_MODE" "$ROOT/Scripts/package_app.sh" "$CONF"
+else
+  echo "Skipping package_app.sh (TOKENBAR_SKIP_PACKAGE=1)"
+fi
 
 APP_BUNDLE="$ROOT/TokenBar.app"
 if [[ ! -d "$APP_BUNDLE" ]]; then

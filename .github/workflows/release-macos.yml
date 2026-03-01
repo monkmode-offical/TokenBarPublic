@@ -204,7 +204,7 @@ jobs:
         run: |
           set -euo pipefail
           ./Scripts/sign-and-notarize.sh
-          ./Scripts/build_dmg.sh
+          TOKENBAR_SKIP_PACKAGE=1 ./Scripts/build_dmg.sh
 
       - name: Publish app release assets
         env:
