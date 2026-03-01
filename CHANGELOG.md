@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.18.3 — 2026-03-01
 ### Highlights
 - Add a merged-menu Overview tab with configurable providers and row-to-provider navigation (#416).
 - Add an experimental option to suppress Claude Keychain prompts (#388).

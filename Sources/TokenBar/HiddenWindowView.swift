@@ -5,13 +5,17 @@ struct HiddenWindowView: View {
     @Bindable var settings: SettingsStore
     @Environment(\.openSettings) private var openSettings
     @Environment(\.openWindow) private var openWindow
+    @State private var configuredKeepaliveWindowID: ObjectIdentifier?
 
     var body: some View {
         Color.clear
             .frame(width: 1, height: 1)
             .allowsHitTesting(false)
             .background(KeepaliveWindowAccessor { window in
+                let windowID = ObjectIdentifier(window)
+                guard self.configuredKeepaliveWindowID != windowID else { return }
                 self.configureKeepaliveWindow(window)
+                self.configuredKeepaliveWindowID = windowID
             })
             .onReceive(NotificationCenter.default.publisher(for: .tokenbarOpenSettings)) { _ in
                 Task { @MainActor in
@@ -38,7 +42,7 @@ struct HiddenWindowView: View {
     @MainActor
     private func configureKeepaliveWindow(_ window: NSWindow) {
         // Keep the helper scene alive for openSettings/openWindow actions, but never visible to users.
-        window.styleMask = [.borderless]
+        // Avoid mutating style mask/content size for SwiftUI-managed windows while AppKit is laying out.
         window.collectionBehavior = [.auxiliary, .ignoresCycle, .transient, .canJoinAllSpaces]
         window.isExcludedFromWindowsMenu = true
         window.level = .floating
@@ -48,27 +52,36 @@ struct HiddenWindowView: View {
         window.hasShadow = false
         window.ignoresMouseEvents = true
         window.canHide = false
-        window.setContentSize(NSSize(width: 1, height: 1))
-        window.setFrameOrigin(NSPoint(x: -5000, y: -5000))
         window.orderOut(nil)
     }
 }
 
 private struct KeepaliveWindowAccessor: NSViewRepresentable {
+    final class Coordinator {
+        weak var resolvedWindow: NSWindow?
+    }
+
     let onWindowResolved: (NSWindow) -> Void
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
 
     func makeNSView(context: Context) -> NSView {
         let view = NSView(frame: .zero)
-        DispatchQueue.main.async { [weak view] in
-            guard let window = view?.window else { return }
-            self.onWindowResolved(window)
-        }
+        self.resolveWindow(for: view, coordinator: context.coordinator)
         return view
     }
 
     func updateNSView(_ nsView: NSView, context: Context) {
-        DispatchQueue.main.async { [weak nsView] in
-            guard let window = nsView?.window else { return }
+        self.resolveWindow(for: nsView, coordinator: context.coordinator)
+    }
+
+    private func resolveWindow(for view: NSView, coordinator: Coordinator) {
+        DispatchQueue.main.async { [weak view, weak coordinator] in
+            guard let view, let coordinator, let window = view.window else { return }
+            guard coordinator.resolvedWindow !== window else { return }
+            coordinator.resolvedWindow = window
             self.onWindowResolved(window)
         }
     }

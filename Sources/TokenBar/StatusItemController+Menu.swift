@@ -1620,6 +1620,7 @@ extension StatusItemController {
             if onClick != nil {
                 let recognizer = NSClickGestureRecognizer(target: self, action: #selector(self.handlePrimaryClick(_:)))
                 recognizer.buttonMask = 0x1
+                recognizer.numberOfClicksRequired = 1
                 self.addGestureRecognizer(recognizer)
             }
         }
@@ -1641,6 +1642,10 @@ extension StatusItemController {
 
         @objc private func handlePrimaryClick(_ recognizer: NSClickGestureRecognizer) {
             guard recognizer.state == .ended else { return }
+            // Ignore rapid second taps to prevent accidental double-click activation.
+            if let event = NSApp.currentEvent, event.clickCount > 1 {
+                return
+            }
             self.onClick?()
         }
 
