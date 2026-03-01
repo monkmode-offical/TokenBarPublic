@@ -246,6 +246,7 @@ jobs:
             export GH_TOKEN="${UPDATES_REPO_TOKEN}"
           fi
 
+          LOADED_TARGET_APPCAST=0
           if gh api "repos/${TARGET_REPO}/contents/appcast.xml" --jq .content > "${RUNNER_TEMP}/appcast.b64" 2>/dev/null; then
             /usr/bin/python3 - "${RUNNER_TEMP}/appcast.b64" appcast.xml <<'PY'
 import base64
@@ -255,12 +256,13 @@ import sys
 src = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8").replace("\n", "")
 pathlib.Path(sys.argv[2]).write_bytes(base64.b64decode(src))
 PY
+            LOADED_TARGET_APPCAST=1
             echo "Loaded appcast.xml from ${TARGET_REPO}."
           else
             echo "Could not load appcast.xml from ${TARGET_REPO}; using checkout copy."
           fi
 
-          if /usr/bin/grep -q "<sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>" appcast.xml; then
+          if [[ "${LOADED_TARGET_APPCAST}" == "1" ]] && /usr/bin/grep -q "<sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>" appcast.xml; then
             echo "Appcast already contains ${VERSION}; skipping regeneration."
           else
             ./Scripts/make_appcast.sh "${ZIP}" "${{ steps.meta.outputs.feed_url }}"
