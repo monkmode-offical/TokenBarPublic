@@ -3,6 +3,23 @@
     <channel>
         <title>TokenBar</title>
         <item>
+            <title>0.18.5</title>
+            <pubDate>Mon, 02 Mar 2026 00:43:04 +0000</pubDate>
+            <link>https://raw.githubusercontent.com/monkmode-offical/TokenBarPublic/main/appcast.xml</link>
+            <sparkle:version>56</sparkle:version>
+            <sparkle:shortVersionString>0.18.5</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[<h2>TokenBar 0.18.5</h2>
+<h3>Highlights</h3>
+<ul>
+<li>Bump release version to 0.18.5.</li>
+<li>Prepare Git release tag <code>v0.18.5</code>.</li>
+</ul>
+<p><a href="https://github.com/tokenbar/tokenbar/blob/main/CHANGELOG.md">View full changelog</a></p>
+]]></description>
+            <enclosure url="https://github.com/monkmode-offical/TokenBarPublic/releases/download/v0.18.5/TokenBar-0.18.5.zip" length="22309199" type="application/octet-stream" sparkle:edSignature="kEXSGsAG/+NZF65UhMCCnU/yIx3HCMTAiVu08Wds4eYNQIhEPI5NOgLSEiOs0f7TR+GaZQOaqaa730PiHMleCQ=="/>
+        </item>
+        <item>
             <title>0.18.4</title>
             <pubDate>Sun, 01 Mar 2026 22:46:39 +0000</pubDate>
             <link>https://raw.githubusercontent.com/monkmode-offical/TokenBarPublic/main/appcast.xml</link>
@@ -33,19 +50,6 @@
 <p><a href="https://github.com/tokenbar/tokenbar/blob/main/CHANGELOG.md">View full changelog</a></p>
 ]]></description>
             <enclosure url="https://github.com/monkmode-offical/TokenBarPublic/releases/download/v0.18.2/TokenBar-0.18.2.zip" length="22307877" type="application/octet-stream" sparkle:edSignature="IcKoUpl9pdO2F/JmzcVTMoNfncAUpD5Il97KOqsN6t5MYTFiyE2od7vAZZHPAgoY1li2Bbt7jIWpny3ozJLpAg=="/>
-        </item>
-        <item>
-            <title>0.18.1</title>
-            <pubDate>Sun, 01 Mar 2026 18:11:05 +0000</pubDate>
-            <link>https://raw.githubusercontent.com/monkmode-offical/TokenBarPublic/main/appcast.xml</link>
-            <sparkle:version>52</sparkle:version>
-            <sparkle:shortVersionString>0.18.1</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <description><![CDATA[<h2>CodexBar 0.18.1</h2>
-<p>Latest CodexBar update.</p>
-<p><a href="https://github.com/steipete/CodexBar/blob/main/CHANGELOG.md">View full changelog</a></p>
-]]></description>
-            <enclosure url="https://github.com/monkmode-offical/TokenBarPublic/releases/download/v0.18.1/TokenBar-0.18.1.zip" length="24562099" type="application/octet-stream" sparkle:edSignature="XY4rwGGqRcIB4HAc3uegRr7TEP1k/q6MLBEFGDEePzZo8HzYnluZh013kmrjVWZ0L20LtWlmspKlFALkUej+DA=="/>
         </item>
     </channel>
 </rss>
